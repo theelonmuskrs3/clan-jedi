@@ -2,6 +2,7 @@
 // Re-implements the TanStack Start server functions of the original Grok-hosted app
 // (same /_serverFn/<id> URLs, same seroval request/response format), backed by D1.
 import { sweepWiki, buildAtelier, isAuto, filterOffline } from "./atelier.js";
+import { loadRankBoard } from "./rank.js";
 import { toCrossJSON, fromCrossJSON } from "seroval";
 import { buildBracket, applyCupWinner, giveawayClock, landingRotation, CUP_MAX } from "./giveaway.js";
 import HEROES from "../data/heroes-min.json";
@@ -442,60 +443,12 @@ async function buildHero(heroId) {
   };
 }
 
-// fetchLiveRank: Moonton GMS rank API (logic shipped in the original bundle, index-*.js Lh/Rh/Vh)
-const RANK_APP = "2669606", RANK_ACT = "2669607", RANK_SOURCE = "2756570";
-async function rankBoardRaw() {
-  const sign = (await fetchJson(`https://api.gms.moontontech.com/api/act/basev4?_t=${Date.now()}`, { headers: { "x-appid": RANK_APP, "x-actid": RANK_ACT, referer: "https://www.mobilelegends.com/" } })).data?.server?.enigma;
-  if (!sign) throw new Error("rank sign unavailable");
-  const body = JSON.stringify({ pageSize: 200, pageIndex: 1, filters: [{ field: "bigrank", operator: "eq", value: "101" }, { field: "match_type", operator: "eq", value: 0 }], sorts: [{ data: { field: "main_hero_ban_rate", order: "desc" }, type: "sequence" }], fields: ["main_hero", "main_hero_appearance_rate", "main_hero_ban_rate", "main_hero_win_rate", "main_heroid", "data.sub_hero.heroid", "data.sub_hero.increase_win_rate"] });
-  const path = `/api/gms/source/${RANK_APP}/${RANK_SOURCE}`;
-  const sig = btoa(String.fromCharCode(...(await hmacHex("SHA-1", sign, ["POST", path, "", body].join("\n")))));
-  const o = await fetchJson(`https://api.gms.moontontech.com${path}`, { method: "POST", headers: { "content-type": "application/json;charset=UTF-8", "x-appid": RANK_APP, "x-actid": RANK_ACT, "x-lang": "en", referer: "https://www.mobilelegends.com/", origin: "https://www.mobilelegends.com", authorization: sig }, body });
-  if (o.code !== 0 || !o.data?.records?.length) throw new Error("rank board empty");
-  const heroes = [];
-  for (const rec of o.data.records) {
-    const t = rec.data ?? {}; const n = t.main_hero?.data?.name;
-    if (!n || typeof t.main_heroid !== "number") continue;
-    const subs = Array.isArray(t.sub_hero) ? t.sub_hero : [];
-    heroes.push({ name: n, officialId: t.main_heroid, win: Number(t.main_hero_win_rate) || 0, pick: Number(t.main_hero_appearance_rate) || 0, ban: Number(t.main_hero_ban_rate) || 0, counters: subs.slice(0, 5).map((s) => ({ officialId: Number(s.heroid) || 0, lift: Number(s.increase_win_rate) || 0 })) });
-  }
-  return { fetchedAt: nowIso(), days: 30, rank: "all", heroes };
+// fetchLiveRank: Moonton GMS rank API, with day/bracket filters (src/rank.js).
+// Default (no args) stays 30 days / all ranks and keeps the existing D1 key "rank".
+function rankDeps(env, ctx, reqUrl) {
+  return { env, ctx, reqUrl, cacheGet, cachePut, snapshot, findHero, fetchJson, hmacHex, nowIso, ID, RANK_TTL, RANK_RETRY };
 }
-function normalizeRank(t, live) { // rank-*.js export n
-  const map = new Map();
-  for (const h of t.heroes) { const f = findHero(h.name); if (f) map.set(h.officialId, { id: f.id, name: f.name }); }
-  const heroes = [];
-  for (const e of t.heroes) {
-    const f = map.get(e.officialId); if (!f) continue;
-    if (e.pick < 2e-4 && e.win > 0.95) continue;
-    heroes.push({ id: f.id, name: f.name, officialId: e.officialId, winRate: e.win, pickRate: e.pick, banRate: e.ban,
-      counters: e.counters.map((c) => { const x = map.get(c.officialId); return !x || c.lift < 0.01 ? null : { id: x.id, name: x.name, lift: c.lift }; }).filter((c) => c != null).slice(0, 5) });
-  }
-  return { fetchedAt: t.fetchedAt, days: 30, rank: "all", source: "https://www.mobilelegends.com/rank", live, heroes };
-}
-async function refreshRank(env) {
-  try {
-    const data = normalizeRank(await rankBoardRaw(), true);
-    if (data.heroes.length < 40) throw new Error("rank board short");
-    await cachePut(env, "rank", Date.now(), data);
-    return data;
-  } catch (e) {
-    const hit = await cacheGet(env, "rank");
-    if (hit) await cachePut(env, "rank", Date.now() - RANK_TTL + RANK_RETRY, hit.data);
-    throw e;
-  }
-}
-async function loadRank(env, ctx, reqUrl) {
-  const hit = await cacheGet(env, "rank");
-  if (hit && Date.now() - hit.at < RANK_TTL) return hit.data;
-  if (hit) { ctx.waitUntil(refreshRank(env).catch(() => {})); return hit.data; }
-  try { return await refreshRank(env); }
-  catch {
-    const snap = await snapshot(env, reqUrl, ID.fetchLiveRank, "");
-    ctx.waitUntil(cachePut(env, "rank", Date.now() - RANK_TTL + RANK_RETRY, snap).catch(() => {}));
-    return snap;
-  }
-}
+
 async function bustLive(env) { memCache.clear(); await env.DB.prepare(`delete from live_cache`).run(); }
 
 // ---------------------------------------------------------------- dispatch
@@ -507,7 +460,7 @@ function liveHandlers(env, ctx, reqUrl) {
     [ID.fetchLiveTier]: (d) => { const loc = locale(d); return cached(env, ctx, `tier:${loc}`, TTL, () => restamp(env, reqUrl, ID.fetchLiveTier, loc), () => snapshot(env, reqUrl, ID.fetchLiveTier, loc)); },
     [ID.fetchLiveAtelier]: async (d) => { const loc = locale(d); let fb = false; const r = await cached(env, ctx, `atelier:${loc}`, TTL, () => buildAtelierLive(env, reqUrl, loc), () => { fb = true; return restamp(env, reqUrl, ID.fetchLiveAtelier, loc); }); return atelierFinal(r, fb); },
     [ID.fetchLiveHero]: (d) => { const heroId = str(d?.heroId, 1, 64); return cached(env, ctx, `hero:${heroId}`, TTL, () => buildHero(heroId), () => snapshot(env, reqUrl, ID.fetchLiveHero, heroId)); },
-    [ID.fetchLiveRank]: () => loadRank(env, ctx, reqUrl),
+    [ID.fetchLiveRank]: (d) => loadRankBoard(rankDeps(env, ctx, reqUrl), d),
     [ID.refreshLive]: async (d) => { const loc = locale(d); await bustLive(env); return patches(loc); },
   };
 }
@@ -620,6 +573,11 @@ export default {
       }
       if (url.pathname.startsWith("/_serverFn/")) return handleServerFn(req, env, ctx, url);
       if (url.pathname === "/api/atelier-art" && req.method === "GET") return atelierArt(req);
+      if (url.pathname === "/api/rank" && req.method === "GET") {
+        await ensureSchema(env);
+        const board = await loadRankBoard(rankDeps(env, ctx, url), { days: url.searchParams.get("days"), rank: url.searchParams.get("rank") });
+        return new Response(JSON.stringify(board), { headers: { "content-type": "application/json", "cache-control": "public, max-age=60", ...cors(req) } });
+      }
       return new Response("Not found", { status: 404 });
     }
     return env.ASSETS.fetch(req);
