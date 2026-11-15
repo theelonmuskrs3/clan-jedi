@@ -1,0 +1,20 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "esbuild": "^0.28.2",
+    "seroval": "^1.4.2"
+  },
+  "devDependencies": {
+    "sql.js": "^1.16.0",
+    "wrangler": "^4.30.0"
+  }
+}
