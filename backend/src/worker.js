@@ -1,6 +1,7 @@
 // Clan Jedi backend: Cloudflare Pages advanced-mode worker.
 // Re-implements the TanStack Start server functions of the original Grok-hosted app
 // (same /_serverFn/<id> URLs, same seroval request/response format), backed by D1.
+import { sweepWiki, buildAtelier, isAuto } from "./atelier.js";
 import { toCrossJSON, fromCrossJSON } from "seroval";
 import { buildBracket, applyCupWinner, giveawayClock, landingRotation, CUP_MAX } from "./giveaway.js";
 import HEROES from "../data/heroes-min.json";
@@ -386,6 +387,31 @@ async function buildCatalog(env, reqUrl, loc) {
   out.fetchedAt = nowIso();
   return out;
 }
+async function wikiInfo(titles) {
+  const out = {};
+  for (let i = 0; i < titles.length; i += 50) {
+    const chunk = titles.slice(i, i + 50);
+    const data = await fetchJson("https://mobile-legends.fandom.com/api.php?" + new URLSearchParams({ action: "query", titles: chunk.join("|"), prop: "imageinfo", iiprop: "url|size", format: "json" }).toString());
+    const norm = {}; for (const n of data.query?.normalized ?? []) norm[n.to] = n.from;
+    for (const page of Object.values(data.query?.pages ?? {})) {
+      const ii = page.imageinfo?.[0];
+      if (!ii || page.missing !== undefined || !page.title) continue;
+      if (!/^https:\/\/static\.wikia\.nocookie\.net\//i.test(ii.url || "")) continue;
+      out[norm[page.title] ?? page.title] = { width: ii.width || 0, height: ii.height || 0 };
+    }
+  }
+  return out;
+}
+// fetchLiveAtelier: curated skins + live wiki sweep; throws (-> snapshot fallback) if the wiki is unreachable or adds nothing
+async function buildAtelierLive(env, reqUrl, loc) {
+  const snap = await snapshot(env, reqUrl, ID.fetchLiveAtelier, loc);
+  const curated = snap.skins.filter((s) => !isAuto(s));
+  const { entries, reached } = await sweepWiki({ fetchJson });
+  if (!reached || !entries.length) throw new Error("wiki sweep empty");
+  const { skins, added } = await buildAtelier(curated, entries, { findHero, wikiInfo });
+  if (!added.length) throw new Error("wiki sweep added nothing");
+  return { ...snap, fetchedAt: nowIso(), skins };
+}
 async function restamp(env, reqUrl, id, loc) { const snap = await snapshot(env, reqUrl, id, loc); return { ...snap, fetchedAt: nowIso() }; }
 
 // fetchLiveHero: Moonton official hero guide (mapi.mobilelegends.com/hero/detail)
@@ -476,7 +502,7 @@ function liveHandlers(env, ctx, reqUrl) {
     [ID.fetchLivePatches]: (d) => patches(locale(d)),
     [ID.fetchLiveCatalog]: (d) => { const loc = locale(d); return cached(env, ctx, `catalog:${loc}`, TTL, () => buildCatalog(env, reqUrl, loc), () => restamp(env, reqUrl, ID.fetchLiveCatalog, loc)); },
     [ID.fetchLiveTier]: (d) => { const loc = locale(d); return cached(env, ctx, `tier:${loc}`, TTL, () => restamp(env, reqUrl, ID.fetchLiveTier, loc), () => snapshot(env, reqUrl, ID.fetchLiveTier, loc)); },
-    [ID.fetchLiveAtelier]: (d) => { const loc = locale(d); return cached(env, ctx, `atelier:${loc}`, TTL, () => restamp(env, reqUrl, ID.fetchLiveAtelier, loc), () => snapshot(env, reqUrl, ID.fetchLiveAtelier, loc)); },
+    [ID.fetchLiveAtelier]: (d) => { const loc = locale(d); return cached(env, ctx, `atelier:${loc}`, TTL, () => buildAtelierLive(env, reqUrl, loc), () => restamp(env, reqUrl, ID.fetchLiveAtelier, loc)); },
     [ID.fetchLiveHero]: (d) => { const heroId = str(d?.heroId, 1, 64); return cached(env, ctx, `hero:${heroId}`, TTL, () => buildHero(heroId), () => snapshot(env, reqUrl, ID.fetchLiveHero, heroId)); },
     [ID.fetchLiveRank]: () => loadRank(env, ctx, reqUrl),
     [ID.refreshLive]: async (d) => { const loc = locale(d); await bustLive(env); return patches(loc); },
