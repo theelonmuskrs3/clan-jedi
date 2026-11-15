@@ -1,4 +1,5 @@
-// Wiki unreachable -> fetchLiveAtelier falls back to tonight's 40-skin snapshot.
+// Wiki unreachable -> fetchLiveAtelier falls back to the bundled snapshot, filtered: skins verified as released
+// and the snapshot's art-less auto rows are dropped, passed leaked dates become TBA.
 import initSqlJs from "sql.js"; import fs from "node:fs"; import { fromCrossJSON } from "seroval";
 const SQL = await initSqlJs(); const db = new SQL.Database();
 const stmt = (sql, args = []) => ({ bind: (...a) => stmt(sql, a), _exec() { const s = db.prepare(sql); s.bind(args.map((x) => (x === undefined ? null : x))); const rows = []; while (s.step()) rows.push(s.getAsObject()); s.free(); return rows; }, async first() { return this._exec()[0] ?? null; }, async all() { return { results: this._exec() }; }, async run() { this._exec(); return {}; } });
@@ -9,4 +10,8 @@ const ROOT = "/workspace/clan-jedi/static-root";
 const env = { DB, ASSETS: { fetch: async (u) => { const p = ROOT + decodeURIComponent(new URL(u.url ?? u).pathname); return fs.existsSync(p) ? new Response(fs.readFileSync(p)) : new Response("nf", { status: 404 }); } } };
 const r = await worker.fetch(new Request("https://t/_serverFn/f89fc7d63b6b20fcd563711bfd9aaa567315b4b218b5b1fd4c5cb44c1bbea21a__en.json", { headers: { "x-tsr-serverFn": "true" } }), env, { waitUntil() {} });
 const v = fromCrossJSON(await r.json(), { refs: new Map() }).result;
-console.log(r.status, v.skins.length === 40 ? "PASS fallback to 40-skin snapshot" : "FAIL " + v.skins.length, v.fetchedAt);
+const ids = v.skins.map((s) => s.id);
+const bad = ["kagura-feast-of-eternity", "kalea-tideborn-sailor", "layla-prismatic-rhythm", "aamon-falcon-of-light", "johnson-midnight-pursuit", "fanny-blade-of-kibou"].filter((x) => ids.includes(x));
+const helcurt = v.skins.find((s) => s.id === "helcurt-cyber-infiltrator");
+const ok = r.status === 200 && v.skins.length === 22 && !bad.length && helcurt?.date === "2099-01-01" && !helcurt.endDate;
+console.log(r.status, ok ? "PASS filtered fallback (22 skins)" : `FAIL ${v.skins.length} bad=${bad} helcurt=${helcurt?.date}`, v.fetchedAt);

@@ -15,3 +15,12 @@ Deploy: upload `static-root/` assets, then POST the deployment with `_worker.js`
 
 Tests: `node test/cup-unit.mjs` (cup flow with a mocked clock), `HOST_CODE=… BASE=… node test/e2e.mjs [--destructive]`
 (destructive ring flow only against a preview/test database), `node test/parity-state.mjs` (cup/ring vs original).
+
+## Upcoming skins (fetchLiveAtelier)
+Every skin is checked live against the MLBB Wiki (`src/atelier.js`). It is shown only while the wiki lists it as
+upcoming (`Upcoming_content` skin sections, a future month on the `StarLight` schedule, or `Upcoming` in
+`Module:Skin/data`) and nothing on the wiki says it has released (a release date on/before today in
+`Module:Skin/data`, a current/past StarLight month, or a passed official date). Hand-picked skins follow the same
+rule, so released skins drop out by themselves. If the wiki is down, the bundled snapshot is served with the same
+date rules applied. `node test/atelier-sweep.mjs` prints every kept/removed skin with its wiki evidence;
+`node test/atelier-fallback.mjs` checks the wiki-down path.

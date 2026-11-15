@@ -1,7 +1,7 @@
 // Clan Jedi backend: Cloudflare Pages advanced-mode worker.
 // Re-implements the TanStack Start server functions of the original Grok-hosted app
 // (same /_serverFn/<id> URLs, same seroval request/response format), backed by D1.
-import { sweepWiki, buildAtelier, isAuto } from "./atelier.js";
+import { sweepWiki, buildAtelier, isAuto, filterOffline } from "./atelier.js";
 import { toCrossJSON, fromCrossJSON } from "seroval";
 import { buildBracket, applyCupWinner, giveawayClock, landingRotation, CUP_MAX } from "./giveaway.js";
 import HEROES from "../data/heroes-min.json";
@@ -402,16 +402,19 @@ async function wikiInfo(titles) {
   }
   return out;
 }
-// fetchLiveAtelier: curated skins + live wiki sweep; throws (-> snapshot fallback) if the wiki is unreachable or adds nothing
+// fetchLiveAtelier: hand-picked skins + wiki-only upcoming skins, each checked against the wiki (Upcoming content,
+// StarLight schedule, Module:Skin/data); released skins drop out. Throws (-> filtered snapshot) if the wiki is down.
 async function buildAtelierLive(env, reqUrl, loc) {
   const snap = await snapshot(env, reqUrl, ID.fetchLiveAtelier, loc);
   const curated = snap.skins.filter((s) => !isAuto(s));
-  const { entries, reached } = await sweepWiki({ fetchJson });
-  if (!reached || !entries.length) throw new Error("wiki sweep empty");
-  const { skins, added } = await buildAtelier(curated, entries, { findHero, wikiInfo });
-  if (!added.length) throw new Error("wiki sweep added nothing");
+  const ev = await sweepWiki({ fetchJson });
+  if (!ev.reached) throw new Error("wiki upcoming content unreachable");
+  const { skins } = await buildAtelier(curated, ev, { findHero, wikiInfo });
+  if (!skins.length) throw new Error("wiki sweep empty");
   return { ...snap, fetchedAt: nowIso(), skins };
 }
+// cached rows / fallback snapshot still pass the date rules (and the snapshot drops skins verified as released)
+const atelierFinal = (data, fallback) => ({ ...data, skins: filterOffline(data.skins ?? [], Date.now(), { dropAuto: fallback }), events: (data.events ?? []).filter((e) => !e.endDate || e.endDate >= nowIso().slice(0, 10)) });
 async function restamp(env, reqUrl, id, loc) { const snap = await snapshot(env, reqUrl, id, loc); return { ...snap, fetchedAt: nowIso() }; }
 
 // fetchLiveHero: Moonton official hero guide (mapi.mobilelegends.com/hero/detail)
@@ -502,7 +505,7 @@ function liveHandlers(env, ctx, reqUrl) {
     [ID.fetchLivePatches]: (d) => patches(locale(d)),
     [ID.fetchLiveCatalog]: (d) => { const loc = locale(d); return cached(env, ctx, `catalog:${loc}`, TTL, () => buildCatalog(env, reqUrl, loc), () => restamp(env, reqUrl, ID.fetchLiveCatalog, loc)); },
     [ID.fetchLiveTier]: (d) => { const loc = locale(d); return cached(env, ctx, `tier:${loc}`, TTL, () => restamp(env, reqUrl, ID.fetchLiveTier, loc), () => snapshot(env, reqUrl, ID.fetchLiveTier, loc)); },
-    [ID.fetchLiveAtelier]: (d) => { const loc = locale(d); return cached(env, ctx, `atelier:${loc}`, TTL, () => buildAtelierLive(env, reqUrl, loc), () => restamp(env, reqUrl, ID.fetchLiveAtelier, loc)); },
+    [ID.fetchLiveAtelier]: async (d) => { const loc = locale(d); let fb = false; const r = await cached(env, ctx, `atelier:${loc}`, TTL, () => buildAtelierLive(env, reqUrl, loc), () => { fb = true; return restamp(env, reqUrl, ID.fetchLiveAtelier, loc); }); return atelierFinal(r, fb); },
     [ID.fetchLiveHero]: (d) => { const heroId = str(d?.heroId, 1, 64); return cached(env, ctx, `hero:${heroId}`, TTL, () => buildHero(heroId), () => snapshot(env, reqUrl, ID.fetchLiveHero, heroId)); },
     [ID.fetchLiveRank]: () => loadRank(env, ctx, reqUrl),
     [ID.refreshLive]: async (d) => { const loc = locale(d); await bustLive(env); return patches(loc); },
@@ -590,7 +593,9 @@ async function handleServerFn(req, env, ctx, url) {
 // /api/atelier-art (src/routes/api/atelier-art.ts)
 const FILE_OK = /^[\w .()\-'&×!]+\.(jpg|jpeg|png|webp)$/i;
 async function atelierArt(req) {
-  const file = new URL(req.url).searchParams.get("file")?.replace(/^File:/i, "").trim() ?? "";
+  const q = new URL(req.url).searchParams;
+  const model = q.get("model")?.replace(/^File:/i, "").trim(); // full-size skin art uploaded as "<name>-portrait.<ext>"
+  const file = model ? model.replace(/(\.\w+)$/, "-portrait$1") : q.get("file")?.replace(/^File:/i, "").trim() ?? "";
   if (!FILE_OK.test(file)) return new Response("bad file", { status: 400 });
   try {
     const data = await fetchJson("https://mobile-legends.fandom.com/api.php?" + new URLSearchParams({ action: "query", titles: `File:${file}`, prop: "imageinfo", iiprop: "url", format: "json" }).toString());
