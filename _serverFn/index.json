@@ -1,0 +1,880 @@
+{
+ "source": "https://pearl-marble-dune-giant.grok.me",
+ "snapshotAt": "2026-11-15T02:28:56.864Z",
+ "functions": {
+  "fetchLivePatches": "1b6e324b0c2d014eee665e7ecb06b48a2fab10ef5d218ed9bf8ccac26cadbbb7",
+  "fetchLiveHero": "61a4e1a33bb916f6b3794ae7215d7787714a1f4954734e65d954c36311780bde",
+  "fetchLiveCatalog": "b55c10f5a084d031c17a1bda4581e4bd0c85bfa11a18f279ecfa0c0601cedd00",
+  "fetchLiveAtelier": "f89fc7d63b6b20fcd563711bfd9aaa567315b4b218b5b1fd4c5cb44c1bbea21a",
+  "fetchLiveTier": "7362049d95cc095c7f632420d23c3194f3879dc2128f94c08131e3677e6c8007",
+  "fetchLiveRank": "f62f7d26dad085277baefcd5a4018de319e3a6a194c3cbbbcb904425dbd42c45",
+  "fetchRing": "e8cc3ab3a6dd34b3f7b7400a8006e14cbe2d9b0770ac24950460454ffa27dfaf",
+  "fetchCup": "ffe8d52cc03d30ecab5c08432ae4dc20046e0064fd2a3b69fe2dbd71be871e26"
+ },
+ "files": [
+  {
+   "fn": "fetchLivePatches",
+   "arg": "es",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveCatalog",
+   "arg": "es",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveTier",
+   "arg": "es",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveAtelier",
+   "arg": "es",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLivePatches",
+   "arg": "en",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveCatalog",
+   "arg": "en",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveTier",
+   "arg": "en",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveAtelier",
+   "arg": "en",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveRank",
+   "arg": null,
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchRing",
+   "arg": null,
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchCup",
+   "arg": null,
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "karrie",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "nana",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "tigreal",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "karina",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "franco",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "bane",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "rafaela",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "fanny",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "minotaur",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "hayabusa",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "natalia",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "kagura",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "chou",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "alpha",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "ruby",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "yi-sun-shin",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "moskov",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "cyclops",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "estes",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "lapu-lapu",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "roger",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "saber",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "alucard",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "zilong",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "hilda",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "akai",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "vexana",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "miya",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "layla",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "lolita",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "johnson",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "sun",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "aurora",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "gord",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "alice",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "freya",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "balmond",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "eudora",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "bruno",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "clint",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "chang-e",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "kaja",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "selena",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "aldous",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "vale",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "leomord",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "lunox",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "belerick",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "harith",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "khufra",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "guinevere",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "gatotkaca",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "harley",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "argus",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "odette",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "lancelot",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "diggie",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "hylos",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "zhask",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "pharsa",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "jawhead",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "martis",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "uranus",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "hanabi",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "valir",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "faramis",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "lesley",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "gusion",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "minsitthar",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "claude",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "helcurt",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "angela",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "granger",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "hanzo",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "kimmy",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "thamuz",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "grock",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "irithel",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "badang",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "kadita",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "melissa",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "silvanna",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "cecilion",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "carmilla",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "atlas",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "popol-and-kupa",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "yu-zhong",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "benedetta",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "khaleed",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "barats",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "mathilda",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "beatrix",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "natan",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "aamon",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "valentina",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "edith",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "floryn",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "yin",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "xavier",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "esmeralda",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "terizla",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "ling",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "lylia",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "baxia",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "julian",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "fredrinn",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "joy",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "arlott",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "novaria",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "x-borg",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "yve",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "phoveus",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "wanwan",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "gloo",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "dyrroth",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "aulus",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "brody",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "luo-yi",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "masha",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "paquito",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "ixia",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "nolan",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "cici",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "chip",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "zhuxin",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "suyou",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "lukas",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "kalea",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "zetian",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "obsidia",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "sora",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "marcel",
+   "status": 200,
+   "ok": true
+  },
+  {
+   "fn": "fetchLiveHero",
+   "arg": "hirara",
+   "status": 200,
+   "ok": true
+  }
+ ]
+}
