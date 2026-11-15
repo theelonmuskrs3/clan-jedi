@@ -263,14 +263,23 @@
   var iv = setInterval(function () {
     tries++;
     wrapApply();
-    if (window.__cjRank || document.querySelector("p.text-gold, p")) {
+    if (window.__cjRank || document.querySelector(".cj-rank-switch") || /mobilelegends\.com\/rank/.test(document.body && document.body.textContent || "")) {
       boot();
       if (window.__cjRank || tries > 40) clearInterval(iv);
     }
     if (tries > 80) clearInterval(iv);
   }, 250);
 
-  var obs = new MutationObserver(function () { mount(); });
-  if (document.documentElement) obs.observe(document.documentElement, { childList: true, subtree: true });
+  var mountTimer = 0;
+  function scheduleMount() {
+    if (mountTimer) return;
+    mountTimer = setTimeout(function () { mountTimer = 0; mount(); }, 200);
+  }
+  function startObserver() {
+    var obs = new MutationObserver(scheduleMount);
+    if (document.documentElement) obs.observe(document.documentElement, { childList: true, subtree: true });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", startObserver);
+  else startObserver();
   window.addEventListener("popstate", function () { setTimeout(mount, 50); });
 })();
