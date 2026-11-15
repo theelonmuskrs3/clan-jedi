@@ -33,6 +33,15 @@ export function tierOf(group, section) {
   return "Epic";
 }
 
+// The original app only styles these five tiers (atelier-foil-* classes + particle palette); anything else would
+// render as an unstyled card, so wiki-only tiers are mapped onto the nearest styled one.
+const STYLED_TIERS = new Set(["Collector", "Epic", "Special", "Starlight", "Legend"]);
+export function styleTier(t) {
+  if (STYLED_TIERS.has(t)) return t;
+  if (t === "Grand") return "Legend";
+  return "Special"; // Basic, Elite and anything unknown
+}
+
 // Upcoming content -> [{hero, name, file, group, section, tier, unconfirmed}]
 export function parseUpcomingContent(wt) {
   const clean = String(wt || "").replace(/<!--[\s\S]*?-->/g, "");
@@ -155,7 +164,7 @@ export async function buildAtelier(curated, ev, deps, now = Date.now()) {
     if (!v.keep) { removed.push({ id: c.id, hero: c.hero, name: c.nameEn, why: v.released ? `released ${v.released}` : "not on the wiki's upcoming lists" }); continue; }
     let s = applyDates(c, today);
     if (!s) { removed.push({ id: c.id, hero: c.hero, name: c.nameEn, why: `official date ${c.date} passed` }); continue; }
-    if (v.uc && s.tier !== v.uc.tier && !s.collab) s = { ...s, tier: v.uc.tier };
+    // keep the original app's tier on its hand-picked skins (tier drives the card foil, glow and particle colours)
     if (v.slFuture && s.date === "2099-01-01") s = { ...s, date: v.sl.date };
     skins.push(s);
   }
@@ -184,7 +193,7 @@ export async function buildAtelier(curated, ev, deps, now = Date.now()) {
     const tba = !e.date || e.date.startsWith("2099");
     const skin = {
       id: slug(e.hero, e.name), heroId: hero.id, hero: e.hero, nameEn: e.name, nameEs: e.name,
-      tier: e.tier, date: e.date || "2099-01-01", confidence: e.unconfirmed ? "leaked" : collab ? "official" : "leaked",
+      tier: styleTier(e.tier), date: e.date || "2099-01-01", confidence: e.unconfirmed ? "leaked" : collab ? "official" : "leaked",
       collab: collab ? e.section.replace(/skins?/gi, "").trim() || e.name : undefined,
       howEn: `Listed on the MLBB Wiki ${e.how}${e.unconfirmed ? " (unconfirmed)" : ""}. ${tba ? "Date TBA — " : ""}checked live against the wiki; drops off once released.`,
       howEs: `Listada en la wiki de MLBB: ${e.how}${e.unconfirmed ? " (sin confirmar)" : ""}. ${tba ? "Fecha por anunciar — " : ""}verificada en vivo con la wiki; se retira al salir.`,

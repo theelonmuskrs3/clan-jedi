@@ -1,7 +1,7 @@
 // Clan Jedi backend: Cloudflare Pages advanced-mode worker.
 // Re-implements the TanStack Start server functions of the original Grok-hosted app
 // (same /_serverFn/<id> URLs, same seroval request/response format), backed by D1.
-import { sweepWiki, buildAtelier, isAuto, filterOffline } from "./atelier.js";
+import { sweepWiki, buildAtelier, isAuto, filterOffline, styleTier } from "./atelier.js";
 import { toCrossJSON, fromCrossJSON } from "seroval";
 import { buildBracket, applyCupWinner, giveawayClock, landingRotation, CUP_MAX } from "./giveaway.js";
 import HEROES from "../data/heroes-min.json";
@@ -414,7 +414,7 @@ async function buildAtelierLive(env, reqUrl, loc) {
   return { ...snap, fetchedAt: nowIso(), skins };
 }
 // cached rows / fallback snapshot still pass the date rules (and the snapshot drops skins verified as released)
-const atelierFinal = (data, fallback) => ({ ...data, skins: filterOffline(data.skins ?? [], Date.now(), { dropAuto: fallback }), events: (data.events ?? []).filter((e) => !e.endDate || e.endDate >= nowIso().slice(0, 10)) });
+const atelierFinal = (data, fallback) => ({ ...data, skins: filterOffline(data.skins ?? [], Date.now(), { dropAuto: fallback }).map((s) => (s.tier === styleTier(s.tier) ? s : { ...s, tier: styleTier(s.tier) })), events: (data.events ?? []).filter((e) => !e.endDate || e.endDate >= nowIso().slice(0, 10)) });
 async function restamp(env, reqUrl, id, loc) { const snap = await snapshot(env, reqUrl, id, loc); return { ...snap, fetchedAt: nowIso() }; }
 
 // fetchLiveHero: Moonton official hero guide (mapi.mobilelegends.com/hero/detail)
@@ -505,7 +505,7 @@ function liveHandlers(env, ctx, reqUrl) {
     [ID.fetchLivePatches]: (d) => patches(locale(d)),
     [ID.fetchLiveCatalog]: (d) => { const loc = locale(d); return cached(env, ctx, `catalog:${loc}`, TTL, () => buildCatalog(env, reqUrl, loc), () => restamp(env, reqUrl, ID.fetchLiveCatalog, loc)); },
     [ID.fetchLiveTier]: (d) => { const loc = locale(d); return cached(env, ctx, `tier:${loc}`, TTL, () => restamp(env, reqUrl, ID.fetchLiveTier, loc), () => snapshot(env, reqUrl, ID.fetchLiveTier, loc)); },
-    [ID.fetchLiveAtelier]: async (d) => { const loc = locale(d); let fb = false; const r = await cached(env, ctx, `atelier:${loc}`, TTL, () => buildAtelierLive(env, reqUrl, loc), () => { fb = true; return restamp(env, reqUrl, ID.fetchLiveAtelier, loc); }); return atelierFinal(r, fb); },
+    [ID.fetchLiveAtelier]: async (d) => { const loc = locale(d); let fb = false; const r = await cached(env, ctx, `atelier2:${loc}`, TTL, () => buildAtelierLive(env, reqUrl, loc), () => { fb = true; return restamp(env, reqUrl, ID.fetchLiveAtelier, loc); }); return atelierFinal(r, fb); },
     [ID.fetchLiveHero]: (d) => { const heroId = str(d?.heroId, 1, 64); return cached(env, ctx, `hero:${heroId}`, TTL, () => buildHero(heroId), () => snapshot(env, reqUrl, ID.fetchLiveHero, heroId)); },
     [ID.fetchLiveRank]: () => loadRank(env, ctx, reqUrl),
     [ID.refreshLive]: async (d) => { const loc = locale(d); await bustLive(env); return patches(loc); },
