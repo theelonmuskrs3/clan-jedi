@@ -17,7 +17,7 @@ const ctx = { waitUntil() {} };
 const src = (await import("node:fs")).readFileSync(new URL("../src/worker.js", import.meta.url), "utf8");
 const id = (k) => new RegExp(`${k}: "([0-9a-f]{64})"`).exec(src)[1];
 async function call(k, data, method = "POST") {
-  const init = method === "POST" ? { method, headers: { "x-tsr-serverFn": "true" }, body: JSON.stringify(toCrossJSON({ data }, { refs: new Map() })) } : { headers: { "x-tsr-serverFn": "true" } };
+  const init = method === "POST" ? { method, headers: { "x-tsr-serverFn": "true" }, body: JSON.stringify({ t: toCrossJSON({ data }, { refs: new Map() }), f: 127, m: [] }) } : { headers: { "x-tsr-serverFn": "true" } };
   const r = await worker.fetch(new Request(`https://t/_serverFn/${id(k)}${method === "GET" ? ".json" : ""}`, init), env, ctx);
   return fromCrossJSON(await r.json(), { refs: new Map() }).result;
 }

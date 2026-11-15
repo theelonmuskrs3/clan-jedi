@@ -552,6 +552,11 @@ function ghAtelier(result) { // GitHub Pages copy lives under /clan-jedi/ and ha
   return out;
 }
 
+// TanStack Start client sends {"t": <cross-JSON node>, "f": <feature flags>, "m": [<plugins>]}
+function decodePayload(obj) {
+  if (obj && typeof obj === "object" && obj.t && typeof obj.t === "object" && typeof obj.f === "number") return fromCrossJSON(obj.t, { refs: new Map() });
+  return fromCrossJSON(obj, { refs: new Map() });
+}
 async function handleServerFn(req, env, ctx, url) {
   const rest = url.pathname.slice("/_serverFn/".length);
   const m = /^([0-9a-f]{64})(?:__(.+?))?(\.json)?$/.exec(decodeURIComponent(rest));
@@ -566,11 +571,11 @@ async function handleServerFn(req, env, ctx, url) {
     if (req.method === "POST") {
       if (GET_IDS.has(id)) throw new BadInput("method");
       const text = await req.text();
-      data = text ? fromCrossJSON(JSON.parse(text), { refs: new Map() })?.data : undefined;
+      data = text ? decodePayload(JSON.parse(text))?.data : undefined;
     } else {
       if (!GET_IDS.has(id)) throw new BadInput("method");
       const payload = url.searchParams.get("payload");
-      if (payload) data = fromCrossJSON(JSON.parse(payload), { refs: new Map() })?.data;
+      if (payload) data = decodePayload(JSON.parse(payload))?.data;
       else if (fileArg && ARG_KEY[id]) data = { [ARG_KEY[id]]: fileArg };
     }
     let result = await fn(data);

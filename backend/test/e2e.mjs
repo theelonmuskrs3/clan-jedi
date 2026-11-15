@@ -29,7 +29,7 @@ const ID = {
 const hdr = () => ({ "x-tsr-serverFn": "true", accept: "application/json", ...(ORIGIN ? { origin: ORIGIN } : {}) });
 async function decode(res) { const t = await res.text(); try { return fromCrossJSON(JSON.parse(t), { refs: new Map() }); } catch { return { raw: t.slice(0, 200) }; } }
 export async function get(id, arg) { const r = await fetch(`${BASE}/_serverFn/${ID[id]}${arg ? "__" + arg : ""}.json`, { headers: hdr() }); const v = await decode(r); return { status: r.status, h: r.headers, v: v.result ?? v }; }
-export async function post(id, data) { const r = await fetch(`${BASE}/_serverFn/${ID[id]}`, { method: "POST", headers: { ...hdr(), "content-type": "application/json" }, body: JSON.stringify(toCrossJSON({ data }, { refs: new Map() })) }); const v = await decode(r); return { status: r.status, h: r.headers, v: v.result ?? v }; }
+export async function post(id, data) { const r = await fetch(`${BASE}/_serverFn/${ID[id]}`, { method: "POST", headers: { ...hdr(), "content-type": "application/json" }, body: JSON.stringify({ t: toCrossJSON({ data }, { refs: new Map() }), f: 127, m: [] }) /* exact browser wire format */ }); const v = await decode(r); return { status: r.status, h: r.headers, v: v.result ?? v }; }
 let fails = 0; const ok = (c, m, extra) => { console.log(`${c ? "PASS" : "FAIL"} ${m}${extra !== undefined ? " " + JSON.stringify(extra).slice(0, 160) : ""}`); if (!c) fails++; };
 
 // live data
