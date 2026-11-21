@@ -6,8 +6,10 @@ original request/response format (seroval cross-JSON, `x-tss-serialized`), plus 
 - Live at https://clan-jedi.pages.dev (same origin). The GitHub Pages copy calls it cross-origin (CORS allow-list).
 - Storage: D1 database `clan-jedi` bound as `DB` (tables are created on first request).
 - Host PIN: Pages secret env var `HOST_CODE` (not in source).
-- Live data: hero guide (mapi.mobilelegends.com), rank board (Moonton GMS), wiki images (Fandom),
-  cached 12 min (rank 24 h, 30 min retry) in D1, falling back to the bundled snapshots in `/_serverFn/*.json`.
+- Live data: hero guide (mapi.mobilelegends.com) with Moonton Academy core items, rank boards (Moonton GMS, 30/7 days x
+  all/Mythic/Honor/Glory, Rone Arena fallback) feeding rank counters and the tier board, Rone MPL stats, wiki images (Fandom),
+  cached 12 min (boards/Academy/pro 24 h, 30 min retry) in D1, falling back to the bundled snapshots in `/_serverFn/*.json`.
+- Patch data: `data/patches-extra.json` (2.2.23, 2.2.16a); logic in `src/meta.js` (see ALGORITHMS.md §12).
 
 Build: `npm ci && npx esbuild src/worker.js --bundle --format=esm --platform=neutral --main-fields=module,main --outfile=dist/_worker.js --minify-syntax`
 Deploy: upload `static-root/` assets, then POST the deployment with `_worker.js`, `_routes.json`

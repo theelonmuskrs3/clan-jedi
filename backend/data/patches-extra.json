@@ -1,0 +1,303 @@
+{
+ "latest": "2.2.23",
+ "en": [
+  {
+   "version": "2.2.23",
+   "date": "2026-11-11",
+   "headline": "Popol and Kupa revamp. Xavier, Lunox, Freya, Aldous buffs. Gloo, Masha, Atlas nerfs. Marksmen back to Gold Lane; tanks pushed out of EXP.",
+   "url": "https://liquipedia.net/mobilelegends/Patch_2.2.23",
+   "source": "Official original-server notes · MLBB Wiki + Liquipedia Portal:Patches",
+   "changes": [
+    {
+     "hero": "Popol and Kupa",
+     "heroId": "popol-and-kupa",
+     "kind": "revamp",
+     "text": "Revamp: Popol can ride Kupa (S2 shield + fast move while Kupa heals). Kupa scales with Popol's level and gear and regens out of combat; S1 bite greatly slows; Alpha Wolf (ult, 9s) adds a knock-up. Traps immobilize, then leave a frost slow zone."
+    },
+    {
+     "hero": "Xavier",
+     "heroId": "xavier",
+     "kind": "buff",
+     "text": "S2 damage moved to Mystic Field activation: 440-690 (+130% total magic power), was 220-345 (+65%). Passive move speed 50% → 60%. S1/S2 backswing −50%."
+    },
+    {
+     "hero": "Lunox",
+     "heroId": "lunox",
+     "kind": "buff",
+     "text": "Passive: +10% spell vamp on shift to Order, +10% magic pen on shift to Chaos. Chaos S2 early % damage 2.5% → 3.5%. Chaos ult dash faster; damage 150-300 (+135% MP), was 250-450 (+100%)."
+    },
+    {
+     "hero": "Freya",
+     "heroId": "freya",
+     "kind": "buff",
+     "text": "Stronger outside ult: Sacred Orb heals on her next basic. Ult cooldown 44-28s → 60-44s; no basic-attack regen in ult; enhanced basics 100-200 (+70% total PA); +30 move speed in ult."
+    },
+    {
+     "hero": "Aldous",
+     "heroId": "aldous",
+     "kind": "buff",
+     "text": "S2 cooldown 12-9.5s → 8s at all levels; damage reduction 30% → 30-55% by level. Less downtime between early trades."
+    },
+    {
+     "hero": "Kaja",
+     "heroId": "kaja",
+     "kind": "buff",
+     "text": "Soaring: better turning; enhanced basics and S2 on minions extend it. Ult has a slightly longer delay, but Control Immunity no longer escapes the area once it lands."
+    },
+    {
+     "hero": "Melissa",
+     "heroId": "melissa",
+     "kind": "buff",
+     "text": "Partial rollback: Muddles damage transfer and on-hit inheritance 52% → 50-60% by level."
+    },
+    {
+     "hero": "Gloo",
+     "heroId": "gloo",
+     "kind": "nerf",
+     "text": "S1 immobilize 0.8s → 0.6s; explosion 230-380 (+11% extra HP), was 250-400 (+12%). S3 damage transfer 80% → 60%."
+    },
+    {
+     "hero": "Masha",
+     "heroId": "masha",
+     "kind": "nerf",
+     "text": "Slow moved from S1 to S2 (50% for 1s); S2 path −20%, damage 60-240 (+40% extra PA). S1 damage bonus 70% → 55% but more minion damage. Passive % damage and regen (4-10% → 3-6%) down."
+    },
+    {
+     "hero": "Atlas",
+     "heroId": "atlas",
+     "kind": "nerf",
+     "text": "Frigid Breath 5s → 4s and freeze cooldown 2.5s → 4s; defense during Frigid Breath scales 0.5% → 0.7% extra HP."
+    },
+    {
+     "hero": "Lukas",
+     "heroId": "lukas",
+     "kind": "adjust",
+     "text": "Base HP 2550 → 2620, physical defense 21 → 23. S1 base damage up, PA scaling down (Pulverize 400-800 +60% PA); regen 6% → 8% max HP. Pushes tanky fighter builds."
+    },
+    {
+     "hero": "Karrie",
+     "heroId": "karrie",
+     "kind": "adjust",
+     "text": "Ult wheels 40 → 50 base damage, ult move speed 20% → 30%. S1 PA scaling 90% → 20% (base) and 20% → 10% (sustained). S2 targets heroes through the dash."
+    },
+    {
+     "hero": "Uranus",
+     "heroId": "uranus",
+     "kind": "adjust",
+     "text": "Basic-attack splash now deals magic damage."
+    },
+    {
+     "hero": "Kagura",
+     "heroId": "kagura",
+     "kind": "adjust",
+     "text": "Clearer indicator for the max umbrella distance (visual only)."
+    },
+    {
+     "kind": "item",
+     "text": "Chastise Pauldron (nerf): attack-speed cut on attackers 75% → 80% (weaker vs attack-speed heroes)."
+    },
+    {
+     "kind": "item",
+     "text": "Antique Cuirass (buff): Deter physical damage reduction 6% → 8%."
+    },
+    {
+     "kind": "other",
+     "text": "Concussive Blast: 100 (+8% total HP), was +7%, but 50% less damage to minions. Sprint cooldown 100s → 75s."
+    },
+    {
+     "kind": "other",
+     "text": "Battlefield: Gold Lane siege minions give 60% extra gold (was 40%). Golden Turret base HP bonus 1,000 → 2,000; outer/inner turret team gold 100/140 → 90/120. Lane Turtle gold/EXP roughly a minion wave."
+    }
+   ]
+  },
+  {
+   "version": "2.2.16a",
+   "date": "2026-10-14",
+   "headline": "Hotfix: Aulus, Hirara, Eudora, Rafaela trimmed. Kalea lifted.",
+   "url": "https://mlbbhub.com/patch-notes/original/2.2.16a",
+   "source": "Official original-server notes · MLBB Wiki + Liquipedia Portal:Patches",
+   "changes": [
+    {
+     "hero": "Kalea",
+     "heroId": "kalea",
+     "kind": "buff",
+     "text": "Enhanced third basic 70 (+4×level) → 120 (+12×level); +60% move speed for 1s on absorbing the Water Zone. S3 bonus 8% → 14% max HP."
+    },
+    {
+     "hero": "Aulus",
+     "heroId": "aulus",
+     "kind": "nerf",
+     "text": "Less sustain: enhanced basics heal 30 (+15% PA) → 15 (+20% PA), base 135 (+15×level) → 120 (+12×level), attack speed fixed 20%. S1 cooldown 14-12s → 15s. Ult hits 150-230 / last slash 450-690."
+    },
+    {
+     "hero": "Hirara",
+     "heroId": "hirara",
+     "kind": "nerf",
+     "text": "S1 (invincibility dash) cooldown 9-5.5s → 10-6.5s. S2 damage 165-270 (+42-70% extra PA)."
+    },
+    {
+     "hero": "Eudora",
+     "heroId": "eudora",
+     "kind": "nerf",
+     "text": "Ult damage down ~10%: center 540-900 (+145% MP), outside 270-450 (+90%), delayed 300-500 (+100%)."
+    },
+    {
+     "hero": "Rafaela",
+     "heroId": "rafaela",
+     "kind": "nerf",
+     "text": "S1 cooldown 5-3s → 5s at all levels; S2 cooldown 10.5-8.5s → 10.5-9.5s."
+    }
+   ]
+  }
+ ],
+ "es": [
+  {
+   "version": "2.2.23",
+   "date": "2026-11-11",
+   "headline": "Revamp de Popol y Kupa. Mejoras a Xavier, Lunox, Freya y Aldous. Nerfs a Gloo, Masha y Atlas. Tiradores de vuelta a Gold; tanques fuera de EXP.",
+   "url": "https://liquipedia.net/mobilelegends/Patch_2.2.23",
+   "source": "Notas oficiales del servidor original · wiki de MLBB + Liquipedia Portal:Patches",
+   "changes": [
+    {
+     "hero": "Popol and Kupa",
+     "heroId": "popol-and-kupa",
+     "kind": "revamp",
+     "text": "Revamp: Popol puede montar a Kupa (H2 escudo + movimiento rápido mientras Kupa se cura). Kupa escala con el nivel y objetos de Popol y se regenera fuera de combate; la mordida de H1 ralentiza mucho; Lobo Alfa (ult, 9s) agrega derribo. Las trampas inmovilizan y dejan una zona de hielo que ralentiza."
+    },
+    {
+     "hero": "Xavier",
+     "heroId": "xavier",
+     "kind": "buff",
+     "text": "El daño de H2 pasa a la activación de Campo Místico: 440-690 (+130% poder mágico total), antes 220-345 (+65%). Velocidad de la pasiva 50% → 60%. Backswing de H1/H2 −50%."
+    },
+    {
+     "hero": "Lunox",
+     "heroId": "lunox",
+     "kind": "buff",
+     "text": "Pasiva: +10% vampirismo de hechizo al pasar a Orden, +10% penetración mágica al pasar a Caos. %daño early de H2 Caos 2.5% → 3.5%. Dash de la ult Caos más rápido; daño 150-300 (+135% PM), antes 250-450 (+100%)."
+    },
+    {
+     "hero": "Freya",
+     "heroId": "freya",
+     "kind": "buff",
+     "text": "Más fuerte fuera de la ult: el Orbe Sagrado cura en su siguiente básico. Cooldown de ult 44-28s → 60-44s; sin regen por básicos en ult; básicos mejorados 100-200 (+70% AF total); +30 velocidad en ult."
+    },
+    {
+     "hero": "Aldous",
+     "heroId": "aldous",
+     "kind": "buff",
+     "text": "Cooldown de H2 12-9.5s → 8s en todos los niveles; reducción de daño 30% → 30-55% por nivel. Menos tiempo muerto entre trades early."
+    },
+    {
+     "hero": "Kaja",
+     "heroId": "kaja",
+     "kind": "buff",
+     "text": "Soaring: gira mejor; los básicos mejorados y H2 sobre minions lo alargan. La ult tarda un poco más, pero la Inmunidad al Control ya no escapa del área cuando cae."
+    },
+    {
+     "hero": "Melissa",
+     "heroId": "melissa",
+     "kind": "buff",
+     "text": "Reversión parcial: transferencia de daño y herencia on-hit de Muddles 52% → 50-60% por nivel."
+    },
+    {
+     "hero": "Gloo",
+     "heroId": "gloo",
+     "kind": "nerf",
+     "text": "Inmovilización de H1 0.8s → 0.6s; explosión 230-380 (+11% vida extra), antes 250-400 (+12%). Transferencia de daño de H3 80% → 60%."
+    },
+    {
+     "hero": "Masha",
+     "heroId": "masha",
+     "kind": "nerf",
+     "text": "La ralentización pasa de H1 a H2 (50% 1s); camino de H2 −20%, daño 60-240 (+40% AF extra). Bono de daño de H1 70% → 55% pero más daño a minions. Baja el %daño de la pasiva y su regen (4-10% → 3-6%)."
+    },
+    {
+     "hero": "Atlas",
+     "heroId": "atlas",
+     "kind": "nerf",
+     "text": "Frigid Breath 5s → 4s y cooldown de congelación 2.5s → 4s; la defensa durante Frigid Breath escala 0.5% → 0.7% de vida extra."
+    },
+    {
+     "hero": "Lukas",
+     "heroId": "lukas",
+     "kind": "adjust",
+     "text": "Vida base 2550 → 2620, defensa física 21 → 23. Sube el daño base de H1 y baja el escalado de AF (Pulverize 400-800 +60% AF); regen 6% → 8% de vida máx. Empuja builds de luchador tanque."
+    },
+    {
+     "hero": "Karrie",
+     "heroId": "karrie",
+     "kind": "adjust",
+     "text": "Ruedas de la ult 40 → 50 de daño base, velocidad en ult 20% → 30%. Escalado de AF de H1 90% → 20% (base) y 20% → 10% (sostenido). H2 detecta héroes durante el dash."
+    },
+    {
+     "hero": "Uranus",
+     "heroId": "uranus",
+     "kind": "adjust",
+     "text": "El splash de sus básicos ahora hace daño mágico."
+    },
+    {
+     "hero": "Kagura",
+     "heroId": "kagura",
+     "kind": "adjust",
+     "text": "Indicador más claro de la distancia máxima del paraguas (solo visual)."
+    },
+    {
+     "kind": "item",
+     "text": "Chastise Pauldron (nerf): el recorte de vel. de ataque al atacante 75% → 80% (más débil vs héroes de vel. de ataque)."
+    },
+    {
+     "kind": "item",
+     "text": "Antique Cuirass (buff): reducción de daño físico de Deter 6% → 8%."
+    },
+    {
+     "kind": "other",
+     "text": "Explosión concusiva: 100 (+8% vida total), antes +7%, pero 50% menos daño a minions. Cooldown de Sprint 100s → 75s."
+    },
+    {
+     "kind": "other",
+     "text": "Campo: los minions de asedio de Gold dan 60% de oro extra (antes 40%). Bono de vida de la base con Golden Turret 1,000 → 2,000; oro de equipo por torre externa/interna 100/140 → 90/120. La Tortuga de línea da oro/EXP como una oleada."
+    }
+   ]
+  },
+  {
+   "version": "2.2.16a",
+   "date": "2026-10-14",
+   "headline": "Hotfix: recortes a Aulus, Hirara, Eudora y Rafaela. Mejora a Kalea.",
+   "url": "https://mlbbhub.com/patch-notes/original/2.2.16a",
+   "source": "Notas oficiales del servidor original · wiki de MLBB + Liquipedia Portal:Patches",
+   "changes": [
+    {
+     "hero": "Kalea",
+     "heroId": "kalea",
+     "kind": "buff",
+     "text": "Tercer básico mejorado 70 (+4×nivel) → 120 (+12×nivel); +60% velocidad 1s al absorber la Zona de Agua. Bono de H3 8% → 14% de vida máx."
+    },
+    {
+     "hero": "Aulus",
+     "heroId": "aulus",
+     "kind": "nerf",
+     "text": "Menos sustain: los básicos mejorados curan 30 (+15% AF) → 15 (+20% AF), base 135 (+15×nivel) → 120 (+12×nivel), vel. de ataque fija 20%. Cooldown de H1 14-12s → 15s. Golpes de ult 150-230 / último corte 450-690."
+    },
+    {
+     "hero": "Hirara",
+     "heroId": "hirara",
+     "kind": "nerf",
+     "text": "Cooldown de H1 (dash invencible) 9-5.5s → 10-6.5s. Daño de H2 165-270 (+42-70% AF extra)."
+    },
+    {
+     "hero": "Eudora",
+     "heroId": "eudora",
+     "kind": "nerf",
+     "text": "Daño de ult ~10% menos: centro 540-900 (+145% PM), afuera 270-450 (+90%), retrasado 300-500 (+100%)."
+    },
+    {
+     "hero": "Rafaela",
+     "heroId": "rafaela",
+     "kind": "nerf",
+     "text": "Cooldown de H1 5-3s → 5s en todos los niveles; cooldown de H2 10.5-8.5s → 10.5-9.5s."
+    }
+   ]
+  }
+ ]
+}

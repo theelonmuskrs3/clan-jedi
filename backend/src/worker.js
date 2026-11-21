@@ -8,6 +8,8 @@ import HEROES from "../data/heroes-min.json";
 import ITEMS from "../data/items-min.json";
 import OFFICIAL_IDS from "../data/official-ids.json";
 import GEAR_NAMES from "../data/gear-names.json";
+import PATCHES_EXTRA from "../data/patches-extra.json";
+import { pullBoards, rankPayload, tierPayload, pullPro, pullAcademy, composeGear, unknownHeroes, extraHeroFromRone, META_TTL, META_RETRY } from "./meta.js";
 
 const ID = {
   fetchLivePatches: "1b6e324b0c2d014eee665e7ecb06b48a2fab10ef5d218ed9bf8ccac26cadbbb7",
@@ -428,7 +430,7 @@ function mapEquipName(name) {
   const hit = GEAR_LIST.find((i) => n === i.n) || GEAR_LIST.find((i) => n.includes(i.n));
   return hit ? hit.id : name.toLowerCase().replace(/\s+/g, "-");
 }
-async function buildHero(heroId) {
+async function mapiHero(heroId) {
   const official = OFFICIAL_IDS[heroId];
   if (!official) throw new Error("unknown hero");
   const raw = await fetchJson(`https://mapi.mobilelegends.com/hero/detail?id=${official}`);
@@ -441,72 +443,122 @@ async function buildHero(heroId) {
     source: "Moonton Hero Guide (mapi.mobilelegends.com)",
   };
 }
+// Moonton Academy high-rank build for this hero (via Rone Arena), cached 24 h in D1; null when unavailable.
+async function academyFor(env, ctx, heroId) {
+  const key = `acad:${heroId}`;
+  const hit = await cacheGet(env, key);
+  if (hit && Date.now() - hit.at < META_TTL) return hit.data?.ids ? hit.data : null;
+  const hero = HEROES.find((h) => h.id === heroId);
+  if (!hero) return null;
+  try {
+    const a = await pullAcademy(heroId, hero.name, { fetchJson });
+    ctx.waitUntil(cachePut(env, key, Date.now(), a).catch(() => {}));
+    return a;
+  } catch {
+    const keep = hit?.data ?? { none: true };
+    ctx.waitUntil(cachePut(env, key, Date.now() - META_TTL + META_RETRY, keep).catch(() => {}));
+    return hit?.data?.ids ? hit.data : null;
+  }
+}
+const ITEM_BY_ID = new Map(ITEMS.map((i) => [i.id, i]));
+async function buildHero(env, ctx, reqUrl, heroId) {
+  const hero = await mapiHero(heroId);
+  // Only heroes that already have an official build get the patch-current core; the gear list stays empty
+  // (Codex keeps its current layout) when Moonton's guide has no entry.
+  if (!hero.gear.length) return hero;
+  const acad = await academyFor(env, ctx, heroId);
+  if (!acad) return hero;
+  const ids = composeGear(heroId, acad.ids, hero.gear.map((g) => g.id), (id) => ITEM_BY_ID.get(id));
+  if (!ids) return hero;
+  const fromMapi = new Map(hero.gear.map((g) => [g.id, g]));
+  hero.gear = ids.map((id) => fromMapi.get(id) ?? { id, name: ITEM_BY_ID.get(id)?.name ?? id, icon: "", des: "" });
+  hero.source = "Moonton Hero Guide (mapi.mobilelegends.com) · core items: Moonton Academy high-rank builds";
+  return hero;
+}
 
 // fetchLiveRank: Moonton GMS rank API (logic shipped in the original bundle, index-*.js Lh/Rh/Vh)
-const RANK_APP = "2669606", RANK_ACT = "2669607", RANK_SOURCE = "2756570";
-async function rankBoardRaw() {
-  const sign = (await fetchJson(`https://api.gms.moontontech.com/api/act/basev4?_t=${Date.now()}`, { headers: { "x-appid": RANK_APP, "x-actid": RANK_ACT, referer: "https://www.mobilelegends.com/" } })).data?.server?.enigma;
-  if (!sign) throw new Error("rank sign unavailable");
-  const body = JSON.stringify({ pageSize: 200, pageIndex: 1, filters: [{ field: "bigrank", operator: "eq", value: "101" }, { field: "match_type", operator: "eq", value: 0 }], sorts: [{ data: { field: "main_hero_ban_rate", order: "desc" }, type: "sequence" }], fields: ["main_hero", "main_hero_appearance_rate", "main_hero_ban_rate", "main_hero_win_rate", "main_heroid", "data.sub_hero.heroid", "data.sub_hero.increase_win_rate"] });
-  const path = `/api/gms/source/${RANK_APP}/${RANK_SOURCE}`;
-  const sig = btoa(String.fromCharCode(...(await hmacHex("SHA-1", sign, ["POST", path, "", body].join("\n")))));
-  const o = await fetchJson(`https://api.gms.moontontech.com${path}`, { method: "POST", headers: { "content-type": "application/json;charset=UTF-8", "x-appid": RANK_APP, "x-actid": RANK_ACT, "x-lang": "en", referer: "https://www.mobilelegends.com/", origin: "https://www.mobilelegends.com", authorization: sig }, body });
-  if (o.code !== 0 || !o.data?.records?.length) throw new Error("rank board empty");
-  const heroes = [];
-  for (const rec of o.data.records) {
-    const t = rec.data ?? {}; const n = t.main_hero?.data?.name;
-    if (!n || typeof t.main_heroid !== "number") continue;
-    const subs = Array.isArray(t.sub_hero) ? t.sub_hero : [];
-    heroes.push({ name: n, officialId: t.main_heroid, win: Number(t.main_hero_win_rate) || 0, pick: Number(t.main_hero_appearance_rate) || 0, ban: Number(t.main_hero_ban_rate) || 0, counters: subs.slice(0, 5).map((s) => ({ officialId: Number(s.heroid) || 0, lift: Number(s.increase_win_rate) || 0 })) });
-  }
-  return { fetchedAt: nowIso(), days: 30, rank: "all", heroes };
+// Official boards (30/7 days x all/Mythic/Honor/Glory), cached 24 h in D1 as one row.
+let boardsInflight = null;
+async function refreshBoards(env, hit) {
+  if (!boardsInflight) boardsInflight = (async () => {
+    try {
+      const fresh = await pullBoards({ fetchJson, hmacHex });
+      const merged = { ...(hit?.data ?? {}), ...fresh };
+      if (!merged["30:all"]) throw new Error("no boards");
+      await cachePut(env, "meta:boards", Object.keys(fresh).length ? Date.now() : Date.now() - META_TTL + META_RETRY, merged);
+      return merged;
+    } catch (e) {
+      if (hit) await cachePut(env, "meta:boards", Date.now() - META_TTL + META_RETRY, hit.data).catch(() => {});
+      throw e;
+    } finally { boardsInflight = null; }
+  })();
+  return boardsInflight;
 }
-function normalizeRank(t, live) { // rank-*.js export n
-  const map = new Map();
-  for (const h of t.heroes) { const f = findHero(h.name); if (f) map.set(h.officialId, { id: f.id, name: f.name }); }
-  const heroes = [];
-  for (const e of t.heroes) {
-    const f = map.get(e.officialId); if (!f) continue;
-    if (e.pick < 2e-4 && e.win > 0.95) continue;
-    heroes.push({ id: f.id, name: f.name, officialId: e.officialId, winRate: e.win, pickRate: e.pick, banRate: e.ban,
-      counters: e.counters.map((c) => { const x = map.get(c.officialId); return !x || c.lift < 0.01 ? null : { id: x.id, name: x.name, lift: c.lift }; }).filter((c) => c != null).slice(0, 5) });
-  }
-  return { fetchedAt: t.fetchedAt, days: 30, rank: "all", source: "https://www.mobilelegends.com/rank", live, heroes };
+async function loadBoards(env, ctx) {
+  const hit = await cacheGet(env, "meta:boards");
+  if (hit && Date.now() - hit.at < META_TTL) return hit.data;
+  if (hit) { ctx.waitUntil(refreshBoards(env, hit).catch(() => {})); return hit.data; }
+  try { return await refreshBoards(env, null); } catch { return {}; }
 }
-async function refreshRank(env) {
-  try {
-    const data = normalizeRank(await rankBoardRaw(), true);
-    if (data.heroes.length < 40) throw new Error("rank board short");
-    await cachePut(env, "rank", Date.now(), data);
-    return data;
-  } catch (e) {
-    const hit = await cacheGet(env, "rank");
-    if (hit) await cachePut(env, "rank", Date.now() - RANK_TTL + RANK_RETRY, hit.data);
-    throw e;
-  }
+async function loadPro(env, ctx) {
+  const hit = await cacheGet(env, "meta:pro");
+  if (hit && Date.now() - hit.at < META_TTL) return hit.data;
+  const run = pullPro({ fetchJson }).then((p) => cachePut(env, "meta:pro", Date.now(), p).then(() => p))
+    .catch(() => { cachePut(env, "meta:pro", Date.now() - META_TTL + META_RETRY, hit?.data ?? { counts: {} }).catch(() => {}); return hit?.data ?? null; });
+  if (hit) { ctx.waitUntil(run); return hit.data; }
+  return run;
 }
 async function loadRank(env, ctx, reqUrl) {
+  const boards = await loadBoards(env, ctx);
+  const data = rankPayload(boards, findHero, "https://www.mobilelegends.com/rank");
+  if (data && data.heroes.length >= 40) return data;
   const hit = await cacheGet(env, "rank");
-  if (hit && Date.now() - hit.at < RANK_TTL) return hit.data;
-  if (hit) { ctx.waitUntil(refreshRank(env).catch(() => {})); return hit.data; }
-  try { return await refreshRank(env); }
-  catch {
-    const snap = await snapshot(env, reqUrl, ID.fetchLiveRank, "");
-    ctx.waitUntil(cachePut(env, "rank", Date.now() - RANK_TTL + RANK_RETRY, snap).catch(() => {}));
-    return snap;
-  }
+  if (hit) return hit.data;
+  return snapshot(env, reqUrl, ID.fetchLiveRank, "");
 }
-async function bustLive(env) { memCache.clear(); await env.DB.prepare(`delete from live_cache`).run(); }
+async function buildTier(env, ctx, reqUrl, loc) {
+  const [boards, pro, shape] = await Promise.all([loadBoards(env, ctx), loadPro(env, ctx).catch(() => null), snapshot(env, reqUrl, ID.fetchLiveTier, loc)]);
+  const t = tierPayload(boards, pro, findHero, shape.boards ?? [], loc, PATCHES_EXTRA.latest);
+  if (!t) throw new Error("tier unavailable");
+  return t;
+}
+// Patch feed: the curated notes for patches newer than the bundled snapshot go on top (same shape).
+function withNewPatches(data, loc) {
+  const have = new Set((data.patches ?? []).map((p) => p.version));
+  const add = (PATCHES_EXTRA[loc] ?? []).filter((p) => !have.has(p.version));
+  return { ...data, patches: [...add, ...(data.patches ?? [])] };
+}
+// New heroes: present in Moonton's official board but not in the roster -> extraHeroes (built from Rone's hero detail).
+async function withNewHeroes(env, ctx, catalog) {
+  try {
+    const hit = await cacheGet(env, "meta:boards");
+    const unknown = hit ? unknownHeroes(hit.data, findHero).slice(0, 4) : [];
+    if (!unknown.length) return catalog;
+    const extra = [];
+    for (const u of unknown) {
+      const key = `newhero:${u.oid}`;
+      const c = await cacheGet(env, key);
+      if (c && (c.data?.id || Date.now() - c.at < META_RETRY)) { if (c.data?.id) extra.push(c.data); continue; }
+      try { const h = await extraHeroFromRone(u.oid, u.name, { fetchJson }); await cachePut(env, key, Date.now(), h); extra.push(h); }
+      catch { await cachePut(env, key, Date.now(), { none: true }).catch(() => {}); }
+    }
+    if (!extra.length) return catalog;
+    const have = new Set((catalog.extraHeroes ?? []).map((h) => h.id));
+    return { ...catalog, extraHeroes: [...(catalog.extraHeroes ?? []), ...extra.filter((h) => !have.has(h.id))] };
+  } catch { return catalog; }
+}
+const KEEP = /^(meta:|acad:|newhero:)/;   // daily official/Rone pulls survive a manual refresh (rate limits)
+async function bustLive(env) { for (const k of [...memCache.keys()]) if (!KEEP.test(k)) memCache.delete(k); await env.DB.prepare(`delete from live_cache where key not like 'meta:%' and key not like 'acad:%' and key not like 'newhero:%'`).run(); }
 
 // ---------------------------------------------------------------- dispatch
 function liveHandlers(env, ctx, reqUrl) {
-  const patches = (loc) => cached(env, ctx, `patches:${loc}`, TTL, () => restamp(env, reqUrl, ID.fetchLivePatches, loc), () => snapshot(env, reqUrl, ID.fetchLivePatches, loc));
+  const patches = (loc) => cached(env, ctx, `patches2:${loc}`, TTL, async () => withNewPatches(await restamp(env, reqUrl, ID.fetchLivePatches, loc), loc), async () => withNewPatches(await snapshot(env, reqUrl, ID.fetchLivePatches, loc), loc));
   return {
     [ID.fetchLivePatches]: (d) => patches(locale(d)),
-    [ID.fetchLiveCatalog]: (d) => { const loc = locale(d); return cached(env, ctx, `catalog:${loc}`, TTL, () => buildCatalog(env, reqUrl, loc), () => restamp(env, reqUrl, ID.fetchLiveCatalog, loc)); },
-    [ID.fetchLiveTier]: (d) => { const loc = locale(d); return cached(env, ctx, `tier:${loc}`, TTL, () => restamp(env, reqUrl, ID.fetchLiveTier, loc), () => snapshot(env, reqUrl, ID.fetchLiveTier, loc)); },
+    [ID.fetchLiveCatalog]: async (d) => { const loc = locale(d); const c = await cached(env, ctx, `catalog:${loc}`, TTL, () => buildCatalog(env, reqUrl, loc), () => restamp(env, reqUrl, ID.fetchLiveCatalog, loc)); return withNewHeroes(env, ctx, c); },
+    [ID.fetchLiveTier]: (d) => { const loc = locale(d); return cached(env, ctx, `tier2:${loc}`, TTL, () => buildTier(env, ctx, reqUrl, loc), () => restamp(env, reqUrl, ID.fetchLiveTier, loc)); },
     [ID.fetchLiveAtelier]: async (d) => { const loc = locale(d); let fb = false; const r = await cached(env, ctx, `atelier2:${loc}`, TTL, () => buildAtelierLive(env, reqUrl, loc), () => { fb = true; return restamp(env, reqUrl, ID.fetchLiveAtelier, loc); }); return atelierFinal(r, fb); },
-    [ID.fetchLiveHero]: (d) => { const heroId = str(d?.heroId, 1, 64); return cached(env, ctx, `hero:${heroId}`, TTL, () => buildHero(heroId), () => snapshot(env, reqUrl, ID.fetchLiveHero, heroId)); },
+    [ID.fetchLiveHero]: (d) => { const heroId = str(d?.heroId, 1, 64); return cached(env, ctx, `hero2:${heroId}`, TTL, () => buildHero(env, ctx, reqUrl, heroId), () => snapshot(env, reqUrl, ID.fetchLiveHero, heroId)); },
     [ID.fetchLiveRank]: () => loadRank(env, ctx, reqUrl),
     [ID.refreshLive]: async (d) => { const loc = locale(d); await bustLive(env); return patches(loc); },
   };
