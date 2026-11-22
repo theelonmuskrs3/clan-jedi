@@ -36,3 +36,7 @@ only added when the wiki has a wide `<Hero> (<Skin>).jpg/png` file (≥600px wid
 (e.g. Johnson · Midnight Pursuit on 2026-11-22) stay hidden and appear by themselves once a real splash is uploaded. The month's StarLight and Collector are also picked up live from the MLBBDex events API
 (`https://mlbbdex.com/api/v1/events`, wiki data, CC BY-SA) with wiki splash art. Live skins are listed first.
 `node test/atelier-dates.mjs` shows which skins are live on sample dates.
+`pending` in the same file registers officially confirmed skins whose art isn't out yet (e.g. Zilong "Aang", MLBB ×
+Avatar: The Last Airbender, Friend Fest from 2026-12-04); each appears by itself once the wiki uploads its wide
+`<Hero> (<Skin>).jpg/png` splash. `liveDays` keeps a started event live when Moonton hasn't announced its end date.
+`node test/atelier-pending.mjs` checks that flow with a mocked wiki.

@@ -163,7 +163,11 @@ export function applyDates(skin, today) {
 // A skin whose event is running (date <= today <= endDate) is shown with the original app's live ("EN CURSO")
 // treatment, even if the wiki already lists it as released, and drops off automatically after endDate.
 // only officially dated events count; a leaked date that passes still turns into "date TBA" (applyDates)
-export const isLiveWindow = (s, today) => !!(s && s.confidence === "official" && s.date && !s.date.startsWith("2099") && s.date <= today && s.endDate && s.endDate >= today);
+// liveDays: official start date but no announced end yet -> counts as running for that many days (no endDate is sent,
+// so the card shows the original's live badge); set endDate once Moonton publishes it
+const plusDays = (iso, n) => new Date(Date.parse(iso + "T00:00:00Z") + n * 864e5).toISOString().slice(0, 10);
+export const isLiveWindow = (s, today) => !!(s && s.confidence === "official" && s.date && !s.date.startsWith("2099") && s.date <= today &&
+  (s.endDate ? s.endDate >= today : s.liveDays > 0 && plusDays(s.date, s.liveDays) >= today));
 
 // hand-picked list + data/skin-events.json: dedupe, apply overrides (event dates for hand-picked skins), append
 // officially confirmed / live-event skins the snapshot doesn't have
@@ -211,6 +215,24 @@ export async function buildAtelier(curatedIn, ev, deps, now = Date.now()) {
     // keep the original app's tier on its hand-picked skins (tier drives the card foil, glow and particle colours)
     if (v.slFuture && s.date === "2099-01-01") s = { ...s, date: v.sl.date };
     skins.push(s);
+  }
+  // officially confirmed skins registered before their art exists (data/skin-events.json "pending"): shown only once
+  // the wiki has an official landscape splash for them, then they follow the same date / release rules
+  const pend = (extra.pending || []).filter((p) => !skins.some((s) => s.id === p.id || same(s.hero, s.nameEn, p.hero, p.nameEn)));
+  if (pend.length) {
+    let inf = {};
+    try { inf = await deps.wikiInfo([...new Set(pend.flatMap((p) => p.wikiFiles || []).map((f) => `File:${f}`))]); } catch { inf = {}; }
+    for (const p of pend) {
+      const file = (p.wikiFiles || []).find((f) => isLandscape(inf[`File:${f}`]));
+      if (!file) { noArt.push({ hero: p.hero, name: p.nameEn, tier: p.tier, section: "confirmed, waiting for landscape art" }); continue; }
+      const { wikiFiles, ...rest } = p;
+      const c = { ...rest, wikiFile: file, angles: [{ kind: "splash", src: proxyArt(file), wikiFile: file, labelEn: "Splash", labelEs: "Splash" }] };
+      if (isLiveWindow(c, today)) { skins.push(c); continue; }
+      const rel = releasedBySkinData(findRec(ev.skinData, c.hero, c.nameEn), today);
+      const s2 = rel ? null : applyDates(c, today);
+      if (!s2) { removed.push({ id: c.id, hero: c.hero, name: c.nameEn, why: rel ? `released ${rel}` : `event ended` }); continue; }
+      skins.push(s2);
+    }
   }
   // StarLight / Collector of the month that is live now but not on the list yet (MLBBDex events, wiki art)
   const dexAll = liveDexEvents(ev.dex, today).filter((e) => deps.findHero(e.heroId));

@@ -558,7 +558,7 @@ function liveHandlers(env, ctx, reqUrl) {
     [ID.fetchLivePatches]: (d) => patches(locale(d)),
     [ID.fetchLiveCatalog]: async (d) => { const loc = locale(d); const c = await cached(env, ctx, `catalog:${loc}`, TTL, () => buildCatalog(env, reqUrl, loc), () => restamp(env, reqUrl, ID.fetchLiveCatalog, loc)); return withNewHeroes(env, ctx, c); },
     [ID.fetchLiveTier]: (d) => { const loc = locale(d); return cached(env, ctx, `tier2:${loc}`, TTL, () => buildTier(env, ctx, reqUrl, loc), () => restamp(env, reqUrl, ID.fetchLiveTier, loc)); },
-    [ID.fetchLiveAtelier]: async (d) => { const loc = locale(d); let fb = false; const r = await cached(env, ctx, `atelier4:${loc}`, TTL, () => buildAtelierLive(env, reqUrl, loc), () => { fb = true; return restamp(env, reqUrl, ID.fetchLiveAtelier, loc); }); return atelierFinal(r, fb); },
+    [ID.fetchLiveAtelier]: async (d) => { const loc = locale(d); let fb = false; const r = await cached(env, ctx, `atelier5:${loc}`, TTL, () => buildAtelierLive(env, reqUrl, loc), () => { fb = true; return restamp(env, reqUrl, ID.fetchLiveAtelier, loc); }); return atelierFinal(r, fb); },
     [ID.fetchLiveHero]: (d) => { const heroId = str(d?.heroId, 1, 64); return cached(env, ctx, `hero2:${heroId}`, TTL, () => buildHero(env, ctx, reqUrl, heroId), () => snapshot(env, reqUrl, ID.fetchLiveHero, heroId)); },
     [ID.fetchLiveRank]: () => loadRank(env, ctx, reqUrl),
     [ID.refreshLive]: async (d) => { const loc = locale(d); await bustLive(env); return patches(loc); },
