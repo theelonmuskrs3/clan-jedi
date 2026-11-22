@@ -26,3 +26,12 @@ upcoming (`Upcoming_content` skin sections, a future month on the `StarLight` sc
 rule, so released skins drop out by themselves. If the wiki is down, the bundled snapshot is served with the same
 date rules applied. `node test/atelier-sweep.mjs` prints every kept/removed skin with its wiki evidence;
 `node test/atelier-fallback.mjs` checks the wiki-down path.
+
+### Live event skins (`data/skin-events.json`)
+A skin whose **official** event is running (`date` ≤ today ≤ `endDate`, `confidence: "official"`) is kept even if the
+wiki already lists it as released, so the card shows the original app's live ("EN CURSO") treatment; it drops off by
+itself after `endDate`. `overrides` sets event dates on hand-picked skins, `add` holds live-event and officially
+confirmed (Moonton post) skins the snapshot lacks, `art` replaces portrait-only wiki art with a prepared 16:9 image in
+`/atelier/`. The month's StarLight and Collector are also picked up live from the MLBBDex events API
+(`https://mlbbdex.com/api/v1/events`, wiki data, CC BY-SA) with wiki splash art. Live skins are listed first.
+`node test/atelier-dates.mjs` shows which skins are live on sample dates.

@@ -10,9 +10,10 @@ const snap = fromCrossJSON(JSON.parse(fs.readFileSync(new URL("../../data/server
 const curated = snap.skins.filter((s) => !isAuto(s));
 const ev = await sweepWiki({ fetchJson });
 console.log("wiki reached", ev.reached, "UC skins", ev.upcoming.length, "StarLight rows", ev.starlight.length, "skin-data rows", Object.keys(ev.skinData).length);
-const { skins, added, removed, noArt } = await buildAtelier(curated, ev, { findHero, wikiInfo });
+const EXTRA = JSON.parse(fs.readFileSync(new URL("../data/skin-events.json", import.meta.url)));
+const { skins, added, removed, noArt } = await buildAtelier(curated, ev, { findHero, wikiInfo, extra: EXTRA });
 const today = todayIso();
 console.log(`\nKEPT/ADDED (${skins.length})`);
-for (const s of skins) { const v = judge(s.hero, s.nameEn, ev, today); console.log(` ${added.includes(s) ? "+" : " "} ${s.hero} · ${s.nameEn} · ${s.tier} · date ${s.date}${s.endDate ? "→" + s.endDate : ""} · UC: ${v.uc ? v.uc.group + " / " + v.uc.section : "-"} · SL: ${v.sl ? v.sl.date : "-"} · data: ${v.rec ? v.rec.release + " " + v.rec.availability : "-"} · art ${s.angles.map((a) => a.src.split("?")[0].split("/").pop()).join(",")}`); }
+for (const s of skins) { const live = s.date <= today && s.endDate >= today; process.stdout.write(live ? "[LIVE] " : ""); const v = judge(s.hero, s.nameEn, ev, today); console.log(` ${added.includes(s) ? "+" : " "} ${s.hero} · ${s.nameEn} · ${s.tier} · date ${s.date}${s.endDate ? "→" + s.endDate : ""} · UC: ${v.uc ? v.uc.group + " / " + v.uc.section : "-"} · SL: ${v.sl ? v.sl.date : "-"} · data: ${v.rec ? v.rec.release + " " + v.rec.availability : "-"} · art ${s.angles.map((a) => a.src.split("?")[0].split("/").pop()).join(",")}`); }
 console.log(`\nREMOVED (${removed.length})`); for (const r of removed) console.log(`  - ${r.hero} · ${r.name}: ${r.why}`);
 console.log(`\nUPCOMING BUT NO ART (${noArt.length})`); for (const r of noArt) console.log(`  ? ${r.hero} · ${r.name} · ${r.tier} (${r.section})`);

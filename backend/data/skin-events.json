@@ -1,0 +1,52 @@
+{
+  "_note": "Live-event skins (shown with the original app's EN CURSO treatment while date <= today <= endDate, then dropped automatically) and officially confirmed upcoming skins. Checked 2026-11-21 against official MLBB posts and the MLBB Wiki.",
+  "overrides": {
+    "aamon-falcon-of-light": {
+      "date": "2026-11-11", "endDate": "2026-12-10", "confidence": "official", "free": true, "event": "Undersea Bash",
+      "howEn": "Free in the Undersea Bash Event Shop (SpongeBob collab) with Friendship Coins, Nov 11–Dec 10.",
+      "howEs": "Gratis en la tienda del evento Undersea Bash (collab de Bob Esponja) con Monedas de Amistad, 11 nov–10 dic.",
+      "blurbEn": "All-new skin, live now. Official splash.",
+      "blurbEs": "Skin nueva, ya en vivo. Splash oficial.",
+      "source": "Moonton · Undersea Bash Event Shop", "sourceUrl": "https://x.com/MobileLegendsOL/status/2121211600569037254"
+    },
+    "popol-flamehide-thane": { "endDate": "2026-12-15" }
+  },
+  "add": [
+    {
+      "id": "bruno-the-purifier", "heroId": "bruno", "hero": "Bruno", "nameEn": "The Purifier", "nameEs": "El Purificador",
+      "tier": "Collector", "date": "2026-11-01", "endDate": "2026-11-30", "confidence": "official", "event": "Exquisite Collection",
+      "howEn": "November Exquisite Collection draw, Nov 1–30. First 10× draw 30% off, daily first 1× half off.",
+      "howEs": "Sorteo Exquisite Collection de noviembre, 1–30 nov. Primer 10× con 30% de descuento, primer 1× diario a mitad de precio.",
+      "blurbEn": "November Collector, live now. Official splash.",
+      "blurbEs": "Collector de noviembre, ya en vivo. Splash oficial.",
+      "source": "Moonton · November Exquisite Collection", "sourceUrl": "https://x.com/MobileLegendsOL/status/2119309063834292525",
+      "angles": [{ "kind": "splash", "src": "/atelier/bruno-the-purifier-a0.jpg", "wikiFile": "Bruno (The Purifier).jpg", "labelEn": "Splash", "labelEs": "Splash" }],
+      "wikiFile": "Bruno (The Purifier).jpg"
+    },
+    {
+      "id": "aurora-emerald-luminary", "heroId": "aurora", "hero": "Aurora", "nameEn": "Emerald Luminary", "nameEs": "Luminaria Esmeralda",
+      "tier": "Special", "date": "2026-11-20", "endDate": "2026-12-10", "confidence": "official", "free": true, "event": "Emerald Luminary",
+      "howEn": "Free Elite skin: complete the event tasks, Nov 20–Dec 10.",
+      "howEs": "Skin Elite gratis: completa las tareas del evento, 20 nov–10 dic.",
+      "blurbEn": "New free skin, live now. Official splash.",
+      "blurbEs": "Skin gratis nueva, ya en vivo. Splash oficial.",
+      "source": "Moonton · Emerald Luminary event", "sourceUrl": "https://x.com/MobileLegendsOL/status/2123748206916067351",
+      "angles": [{ "kind": "splash", "src": "/atelier/aurora-emerald-luminary-a0.jpg", "wikiFile": "Aurora (Emerald Luminary).jpg", "labelEn": "Splash", "labelEs": "Splash" }],
+      "wikiFile": "Aurora (Emerald Luminary).jpg"
+    },
+    {
+      "id": "bane-mr-krabs", "heroId": "bane", "hero": "Bane", "nameEn": "Mr. Krabs", "nameEs": "Don Cangrejo",
+      "tier": "Epic", "date": "2099-01-01", "confidence": "official", "collab": "SpongeBob SquarePants",
+      "howEn": "Officially revealed for the MLBB × SpongeBob SquarePants collab; Moonton moved its launch to December — exact date TBA.",
+      "howEs": "Revelada oficialmente para la collab MLBB × Bob Esponja; Moonton movió su lanzamiento a diciembre — fecha exacta por anunciar.",
+      "blurbEn": "Confirmed collab skin. Official splash.",
+      "blurbEs": "Skin collab confirmada. Splash oficial.",
+      "source": "Moonton · MLBB × SpongeBob SquarePants", "sourceUrl": "https://x.com/MobileLegendsOL/status/2117829187440357867",
+      "angles": [{ "kind": "splash", "src": "/atelier/bane-mr-krabs-a0.jpg", "wikiFile": "Bane (Mr. Krabs).jpg", "labelEn": "Splash", "labelEs": "Splash" }],
+      "wikiFile": "Bane (Mr. Krabs).jpg"
+    }
+  ],
+  "art": {
+    "johnson-midnight-pursuit": [{ "kind": "splash", "src": "/atelier/johnson-midnight-pursuit-splash.jpg", "wikiFile": "Hero103210-portrait.jpg", "labelEn": "Splash", "labelEs": "Splash" }]
+  }
+}

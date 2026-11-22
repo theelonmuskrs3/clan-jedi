@@ -120,11 +120,12 @@ const proxyModel = (file) => `/api/atelier-art?model=${enc(file.replace(/-portra
 export async function sweepWiki(deps) {
   const api = (q) => deps.fetchJson("https://mobile-legends.fandom.com/api.php?" + new URLSearchParams({ ...q, format: "json" }).toString());
   const page = (p) => api({ action: "parse", page: p, prop: "wikitext", redirects: "1" }).then((d) => d.parse?.wikitext?.["*"] ?? "");
-  const [uc, sl, sd] = await Promise.allSettled([
+  const [uc, sl, sd, dex] = await Promise.allSettled([
     page("Upcoming_content"),
     page("StarLight"),
     api({ action: "query", titles: "Module:Skin/data", prop: "revisions", rvprop: "content", rvslots: "main" })
       .then((d) => Object.values(d.query?.pages ?? {})[0]?.revisions?.[0]?.slots?.main?.["*"] ?? ""),
+    deps.fetchJson("https://mlbbdex.com/api/v1/events").then((d) => d.data ?? []),
   ]);
   const upcoming = uc.status === "fulfilled" ? parseUpcomingContent(uc.value) : [];
   return {
@@ -132,6 +133,7 @@ export async function sweepWiki(deps) {
     upcoming,
     starlight: sl.status === "fulfilled" ? parseStarlightSchedule(sl.value) : [],
     skinData: sd.status === "fulfilled" ? parseSkinData(sd.value) : {},
+    dex: dex.status === "fulfilled" && Array.isArray(dex.value) ? dex.value : [],
   };
 }
 
@@ -150,16 +152,56 @@ export function judge(hero, name, ev, today) {
 export function applyDates(skin, today) {
   const d = skin.date || "";
   if (!d || d.startsWith("2099") || d > today) return skin;
+  if (isLiveWindow(skin, today)) return skin; // official event still running -> stays, with the live badge
   if (skin.confidence === "official") return null;
   const s = { ...skin, date: "2099-01-01", howEn: `The leaked ${d} date passed without a release; the wiki still lists it as upcoming — date TBA.`, howEs: `La fecha filtrada ${d} pasó sin lanzamiento; la wiki aún la lista como próxima — fecha por anunciar.` };
   delete s.endDate;
   return s;
 }
 
-export async function buildAtelier(curated, ev, deps, now = Date.now()) {
+// --- live events -------------------------------------------------------------------------------------------
+// A skin whose event is running (date <= today <= endDate) is shown with the original app's live ("EN CURSO")
+// treatment, even if the wiki already lists it as released, and drops off automatically after endDate.
+// only officially dated events count; a leaked date that passes still turns into "date TBA" (applyDates)
+export const isLiveWindow = (s, today) => !!(s && s.confidence === "official" && s.date && !s.date.startsWith("2099") && s.date <= today && s.endDate && s.endDate >= today);
+
+// hand-picked list + data/skin-events.json: dedupe, apply overrides (event dates for hand-picked skins), append
+// officially confirmed / live-event skins the snapshot doesn't have
+export function prepareCurated(list, extra = {}) {
+  const seen = new Set(); const out = [];
+  const ov = extra.overrides || {};
+  for (const s of list) { if (seen.has(s.id)) continue; seen.add(s.id); out.push(ov[s.id] ? { ...s, ...ov[s.id] } : s); }
+  for (const a of extra.add || []) if (!seen.has(a.id) && !out.some((s) => same(s.hero, s.nameEn, a.hero, a.nameEn))) { seen.add(a.id); out.push({ ...a }); }
+  return out;
+}
+const withArt = (s, extra = {}) => (extra.art?.[s.id] ? { ...s, angles: extra.art[s.id] } : s);
+// live first (original order), then everything else in its existing order; one card per skin
+export function orderSkins(skins, today) {
+  const seen = new Set(); const uniq = skins.filter((s) => (seen.has(s.id) ? false : (seen.add(s.id), true)));
+  return [...uniq.filter((s) => isLiveWindow(s, today)), ...uniq.filter((s) => !isLiveWindow(s, today))];
+}
+
+// MLBBDex public API (data from the MLBB Wiki, CC BY-SA): this month's StarLight + Collector with start/end
+export function liveDexEvents(dex, today) {
+  return (dex || []).filter((e) => e && e.hero && e.skin && /^(starlight|collector)$/i.test(e.kind) && String(e.start).slice(0, 10) <= today && String(e.end).slice(0, 10) >= today)
+    .map((e) => ({ heroId: e.hero, name: e.skin, kind: e.kind.toLowerCase(), start: String(e.start).slice(0, 10), end: String(e.end).slice(0, 10), link: e.link }));
+}
+
+export async function buildAtelier(curatedIn, ev, deps, now = Date.now()) {
   const today = todayIso(now);
+  const extra = deps.extra || {};
+  const curated = prepareCurated(curatedIn, extra);
+  const extraIds = new Set((extra.add || []).map((a) => a.id));
   const skins = []; const removed = []; const added = []; const noArt = [];
-  for (const c of curated) {
+  for (const c0 of curated) {
+    const c = withArt(c0, extra);
+    if (isLiveWindow(c, today)) { skins.push(c); continue; }
+    if (extraIds.has(c.id)) { // officially confirmed: kept until the wiki shows it released or its dates pass
+      const rel = releasedBySkinData(findRec(ev.skinData, c.hero, c.nameEn), today);
+      const s = rel ? null : applyDates(c, today);
+      if (!s) { removed.push({ id: c.id, hero: c.hero, name: c.nameEn, why: rel ? `released ${rel}` : `event ended ${c.endDate || c.date}` }); continue; }
+      skins.push(s); continue;
+    }
     const v = judge(c.hero, c.nameEn, ev, today);
     if (!v.keep) { removed.push({ id: c.id, hero: c.hero, name: c.nameEn, why: v.released ? `released ${v.released}` : "not on the wiki's upcoming lists" }); continue; }
     let s = applyDates(c, today);
@@ -167,6 +209,33 @@ export async function buildAtelier(curated, ev, deps, now = Date.now()) {
     // keep the original app's tier on its hand-picked skins (tier drives the card foil, glow and particle colours)
     if (v.slFuture && s.date === "2099-01-01") s = { ...s, date: v.sl.date };
     skins.push(s);
+  }
+  // StarLight / Collector of the month that is live now but not on the list yet (MLBBDex events, wiki art)
+  const dexAll = liveDexEvents(ev.dex, today).filter((e) => deps.findHero(e.heroId));
+  for (const e of dexAll) { // a listed skin that became this month's StarLight/Collector -> live with the official dates
+    const i = skins.findIndex((s) => same(s.hero, s.nameEn, deps.findHero(e.heroId).name, e.name));
+    if (i >= 0 && !isLiveWindow(skins[i], today)) skins[i] = { ...skins[i], date: e.start, endDate: e.end, confidence: "official" };
+  }
+  const dexLive = dexAll.filter((e) => !skins.some((s) => same(s.hero, s.nameEn, deps.findHero(e.heroId).name, e.name)));
+  if (dexLive.length) {
+    const files = dexLive.map((e) => `${deps.findHero(e.heroId).name.replace(/ and /, " & ")} (${e.name}).jpg`).concat(dexLive.map((e) => `${deps.findHero(e.heroId).name} (${e.name}).jpg`));
+    const inf = await deps.wikiInfo([...new Set(files.map((f) => `File:${f}`))]);
+    for (const e of dexLive) {
+      const hero = deps.findHero(e.heroId);
+      const file = [`${hero.name} (${e.name}).jpg`, `${hero.name.replace(/ and /, " & ")} (${e.name}).jpg`].find((f) => inf[`File:${f}`]?.width >= 600);
+      if (!file) { noArt.push({ hero: hero.name, name: e.name, tier: e.kind, section: "live event" }); continue; }
+      const sl = e.kind === "starlight"; const mon = e.start.slice(0, 7);
+      const skin = {
+        id: slug(hero.name, e.name), heroId: hero.id, hero: hero.name, nameEn: e.name, nameEs: e.name,
+        tier: sl ? "Starlight" : "Collector", date: e.start, endDate: e.end, confidence: "official", event: sl ? "Starlight" : "Exquisite Collection",
+        howEn: `${sl ? "StarLight" : "Collector"} of the month (${mon}), live until ${e.end}.`,
+        howEs: `${sl ? "StarLight" : "Collector"} del mes (${mon}), en curso hasta el ${e.end}.`,
+        blurbEn: "Live now. Official splash from the wiki.", blurbEs: "Ya en vivo. Splash oficial de la wiki.",
+        source: "MLBBDex events · MLBB Wiki", sourceUrl: e.link || "https://mlbbdex.com/en/api-doc",
+        wikiFile: file, angles: [{ kind: "splash", src: proxyArt(file), wikiFile: file, labelEn: "Splash", labelEs: "Splash" }],
+      };
+      added.push(skin); skins.push(skin);
+    }
   }
   // wiki-only candidates
   const cands = [];
@@ -203,9 +272,10 @@ export async function buildAtelier(curated, ev, deps, now = Date.now()) {
       wikiFile: named || e.file, portraitFile: e.file, angles,
     };
     if (skin.collab === undefined) delete skin.collab;
-    added.push(skin); skins.push(skin);
+    const fixed = withArt(skin, extra);
+    added.push(fixed); skins.push(fixed);
   }
-  return { skins, added, removed, noArt };
+  return { skins: orderSkins(skins, today), added, removed, noArt };
 }
 
 // last-resort filter for cached/fallback data when the wiki can't be reached: date rules + skins verified as
@@ -217,6 +287,7 @@ export const VERIFIED_RELEASED = new Set([
 ]);
 export function filterOffline(skins, now = Date.now(), { dropAuto = false } = {}) {
   const today = todayIso(now);
-  return skins.filter((s) => !VERIFIED_RELEASED.has(s.id) && !(dropAuto && isAuto(s))).map((s) => applyDates(s, today)).filter(Boolean);
+  const kept = skins.filter((s) => isLiveWindow(s, today) || (!VERIFIED_RELEASED.has(s.id) && !(dropAuto && isAuto(s)))).map((s) => applyDates(s, today)).filter(Boolean);
+  return orderSkins(kept, today);
 }
 export const isAuto = (s) => s.source === AUTO_SOURCE;
