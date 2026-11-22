@@ -1,5 +1,5 @@
 {
-  "_note": "Live-event skins (shown with the original app's EN CURSO treatment while date <= today <= endDate, then dropped automatically) and officially confirmed upcoming skins. Checked 2026-11-21 against official MLBB posts and the MLBB Wiki. Every card needs official landscape splash art (portrait-only skins stay hidden until the wiki has a wide splash). 'pending' = officially confirmed skins without landscape art yet; they appear automatically once the wiki uploads '<Hero> (<Skin>).jpg/png' as a wide splash. liveDays = assumed run length when Moonton hasn't announced the end date.",
+  "_note": "Live-event skins (shown with the original app's EN CURSO treatment while date <= today <= endDate, then dropped automatically) and officially confirmed upcoming skins. Checked 2026-11-22 against official MLBB posts and the MLBB Wiki. Every card needs official landscape splash art (portrait-only skins stay hidden until the wiki has a wide splash). 'pending' = officially confirmed skins without landscape art yet; they appear automatically once the wiki uploads '<Hero> (<Skin>).jpg/png' as a wide splash. liveDays = assumed run length when Moonton hasn't announced the end date.",
   "overrides": {
     "aamon-falcon-of-light": {
       "date": "2026-11-11",
@@ -127,6 +127,29 @@
       "wikiFiles": [
         "Zilong (Aang).jpg",
         "Zilong (Aang).png"
+      ]
+    },
+    {
+      "id": "kadita-katara",
+      "heroId": "kadita",
+      "hero": "Kadita",
+      "nameEn": "Katara",
+      "nameEs": "Katara",
+      "tier": "Epic",
+      "date": "2026-12-04",
+      "liveDays": 28,
+      "confidence": "official",
+      "collab": "Avatar: The Last Airbender",
+      "event": "Friend Fest",
+      "howEn": "Officially revealed as Kadita \"Katara\" on Moonton's Friend Fest × Avatar Farm Pals poster (Nov 22). Friend Fest starts Dec 4; end date TBA. Unlike Zilong \"Aang\", official materials do not label this skin as free; how to obtain it has not been announced.",
+      "howEs": "Revelada oficialmente como Kadita «Katara» en el póster oficial de Friend Fest × Avatar Farm Pals (22 nov). Friend Fest empieza el 4 dic; fin por anunciar. A diferencia de Zilong «Aang», los materiales oficiales no la marcan como gratis; cómo obtenerla aún no se anunció.",
+      "blurbEn": "Confirmed Avatar collab skin. Official splash.",
+      "blurbEs": "Skin collab de Avatar confirmada. Splash oficial.",
+      "source": "Moonton · Friend Fest × Avatar",
+      "sourceUrl": "https://x.com/MobileLegendsOL/status/2124442779443187918",
+      "wikiFiles": [
+        "Kadita (Katara).jpg",
+        "Kadita (Katara).png"
       ]
     },
     {
