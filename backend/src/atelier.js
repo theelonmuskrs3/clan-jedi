@@ -174,6 +174,8 @@ export function prepareCurated(list, extra = {}) {
   for (const a of extra.add || []) if (!seen.has(a.id) && !out.some((s) => same(s.hero, s.nameEn, a.hero, a.nameEn))) { seen.add(a.id); out.push({ ...a }); }
   return out;
 }
+// real landscape splash: at least 600px wide and clearly wider than tall (16:9-ish)
+export const isLandscape = (ii) => !!(ii && ii.width >= 600 && ii.height > 0 && ii.width / ii.height >= 1.3);
 const withArt = (s, extra = {}) => (extra.art?.[s.id] ? { ...s, angles: extra.art[s.id] } : s);
 // live first (original order), then everything else in its existing order; one card per skin
 export function orderSkins(skins, today) {
@@ -222,7 +224,7 @@ export async function buildAtelier(curatedIn, ev, deps, now = Date.now()) {
     const inf = await deps.wikiInfo([...new Set(files.map((f) => `File:${f}`))]);
     for (const e of dexLive) {
       const hero = deps.findHero(e.heroId);
-      const file = [`${hero.name} (${e.name}).jpg`, `${hero.name.replace(/ and /, " & ")} (${e.name}).jpg`].find((f) => inf[`File:${f}`]?.width >= 600);
+      const file = [`${hero.name} (${e.name}).jpg`, `${hero.name.replace(/ and /, " & ")} (${e.name}).jpg`].find((f) => isLandscape(inf[`File:${f}`]));
       if (!file) { noArt.push({ hero: hero.name, name: e.name, tier: e.kind, section: "live event" }); continue; }
       const sl = e.kind === "starlight"; const mon = e.start.slice(0, 7);
       const skin = {
@@ -251,12 +253,14 @@ export async function buildAtelier(curatedIn, ev, deps, now = Date.now()) {
   const info = titles.length ? await deps.wikiInfo(titles) : {};
   for (const e of pending) {
     const hero = deps.findHero(e.hero);
-    const named = [`${e.hero} (${e.name}).jpg`, `${e.hero} (${e.name}).png`].find((f) => info[`File:${f}`]?.width >= 600);
+    // official landscape splash only (the wiki's "<Hero> (<Skin>)" file, wide, ≥600px); a skin with only a portrait
+    // or loading-screen image stays off the list until real landscape art is uploaded
+    const named = [`${e.hero} (${e.name}).jpg`, `${e.hero} (${e.name}).png`].find((f) => isLandscape(info[`File:${f}`]));
     const mi = info[`File:${e.file}`];
     const bigPortrait = mi && mi.width >= 600 && mi.height >= 700; // real art, not a 240x390 thumbnail
     const angles = [];
     if (named) angles.push({ kind: "splash", src: proxyArt(named), wikiFile: named, labelEn: "Splash", labelEs: "Splash" });
-    if (bigPortrait) angles.push({ kind: "model", src: /-portrait\./i.test(e.file) ? proxyModel(e.file) : proxyArt(e.file), wikiFile: e.file, labelEn: "Skin art", labelEs: "Arte de la skin" });
+    if (named && bigPortrait) angles.push({ kind: "model", src: /-portrait\./i.test(e.file) ? proxyModel(e.file) : proxyArt(e.file), wikiFile: e.file, labelEn: "Skin art", labelEs: "Arte de la skin" });
     if (!angles.length) { noArt.push({ hero: e.hero, name: e.name, tier: e.tier, section: e.section }); continue; }
     const collab = /collaboration/i.test(e.group || "");
     const tba = !e.date || e.date.startsWith("2099");

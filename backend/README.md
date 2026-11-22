@@ -31,7 +31,8 @@ date rules applied. `node test/atelier-sweep.mjs` prints every kept/removed skin
 A skin whose **official** event is running (`date` ≤ today ≤ `endDate`, `confidence: "official"`) is kept even if the
 wiki already lists it as released, so the card shows the original app's live ("EN CURSO") treatment; it drops off by
 itself after `endDate`. `overrides` sets event dates on hand-picked skins, `add` holds live-event and officially
-confirmed (Moonton post) skins the snapshot lacks, `art` replaces portrait-only wiki art with a prepared 16:9 image in
-`/atelier/`. The month's StarLight and Collector are also picked up live from the MLBBDex events API
+confirmed (Moonton post) skins the snapshot lacks. Every card needs official landscape splash art: wiki-found skins are
+only added when the wiki has a wide `<Hero> (<Skin>).jpg/png` file (≥600px wide, aspect ≥1.3); portrait-only skins
+(e.g. Johnson · Midnight Pursuit on 2026-11-22) stay hidden and appear by themselves once a real splash is uploaded. The month's StarLight and Collector are also picked up live from the MLBBDex events API
 (`https://mlbbdex.com/api/v1/events`, wiki data, CC BY-SA) with wiki splash art. Live skins are listed first.
 `node test/atelier-dates.mjs` shows which skins are live on sample dates.
